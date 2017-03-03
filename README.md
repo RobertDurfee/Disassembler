@@ -16,7 +16,7 @@ A `Disassembler` can be initialized by default--where the buffer must be set lat
 
 ### Disassemble
 ```C++
-string Disassemble(int startingAddress = 0x0, int length = 0xFFFFFFFF, int instructions = 0xFFFFFFFF, int flags = 0x0, int baseAddress = 0x0)
+string Disassemble(int startingAddress = 0, int length = -1, int instructions = -1, int flags = 0, int baseAddress = 0)
 ```
 The `Disassemble` method converts the buffer into Intel x86 Assembly language. 
 
