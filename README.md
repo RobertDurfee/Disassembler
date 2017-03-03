@@ -3,7 +3,7 @@
 C++ class for disassembling Intel x86 assembly.
 
 ### Disclaimer
-This is not production-worthy code! View this simply as a proof-of-concept.
+CThis is not production-worthy code! View this simply as a proof-of-concept.
 
 In addition, I'd like to apologize to anyone who reads this code. I wrote this a few years ago when I was about 14-years-old. When I look at this code now, I want to cry. I am going to try to improve this code later on but it may too big of a task for right now. I am putting it on Github nonetheless, as it is an important project of my past and I don't want to lose it.
 
@@ -13,7 +13,7 @@ Disassembler();
 Disassembler(char * input, int length);
 ```
 A `Disassembler` can be initialized by default--where the buffer must be set later--or by including the buffer and the length right away. The buffer is copied into the object. (This may change in the future.)
-
+E
 ### Disassemble
 ```C++
 string Disassemble(int startingAddress = 0, int length = -1, int instructions = -1, int flags = 0, int baseAddress = 0)
@@ -23,7 +23,7 @@ The `Disassemble` method converts the buffer into Intel x86 Assembly language.
 The output can be a string (specified through the `flags` with `DISASSEMBLE_STRING`), printed to the standard output stream (specified through the `flags` with `DISASSEMBLE_PRINT`), or neither (leaving `flags` empty). 
 
 The `startingAddress` tells the method where to start within the buffer relative to the beginning. 
-
+S
 The `length` tells the method how many bytes to read from the buffer. 
 
 The `instruction` tells the method how many instructions to disassemble. 
@@ -53,7 +53,7 @@ int main()
 
 	Disassembler disasm((char *)pe.GetSection(".text")->Data, pe.GetSection(".text")->Length);
 
-	disasm.Disassemble(pe.GetHeader<EXECUTABLE_OPTIONAL_HEADER>(OPTIONAL_HEADER)->AddressOfEntryPoint - pe.GetHeader<EXECUTABLE_SECTION_HEADER>((pe.GetSectionNumber(".text") << 16) | SECTION_HEADER)->VirtualAddress, -1, 20, DISASSEMBLER_PRINT, pe.GetHeader<EXECUTABLE_SECTION_HEADER>(SECTION_HEADER | (pe.GetSectionNumber(".text") << 16))->VirtualAddress);
+	disasm.Disassemble(pe.GetHeader<EXECUTABLE_OPTIONAL_HEADER>(OPTIONAL_HEADER)->AddressOfEntryPoint - pe.GetHeader<EXECUTABLE_SECTION_HEADER>(SECTION_HEADER | (pe.GetSectionNumber(".text") << 16))->VirtualAddress, -1, 20, DISASSEMBLER_PRINT, pe.GetHeader<EXECUTABLE_SECTION_HEADER>(SECTION_HEADER | (pe.GetSectionNumber(".text") << 16))->VirtualAddress);
 
 	return 0;
 }
