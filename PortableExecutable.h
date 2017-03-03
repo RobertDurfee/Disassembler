@@ -139,7 +139,8 @@ public:
 
 	string ToString(int command);
 	
-	void * GetHeader(int command);
+	template<typename T>
+	T * GetHeader(int command);
 	Section * GetSection(int sectionNumber);
 	Section * GetSection(string sectionName);
 	int GetSectionNumber(string sectionName);
@@ -422,18 +423,19 @@ string PortableExecutable::ToString(int command = (0x00 << 24) | (0xFF << 16) | 
 	}
 	return ss.str();
 }
-void * PortableExecutable::GetHeader(int command)
+template<typename T>
+T * PortableExecutable::GetHeader(int command)
 {
 	int section = (command >> 16) & 0xFFFF;
 
 	if (command & DOS_HEADER)
-		return &dosHeader;
+		return (T*)&dosHeader;
 	else if (command & FILE_HEADER)
-		return &fileHeader;
+		return (T*)&fileHeader;
 	else if (command & OPTIONAL_HEADER)
-		return &optionalHeader;
+		return (T*)&optionalHeader;
 	else if (command & SECTION_HEADER)
-		return &sectionHeaders[section];
+		return (T*)&sectionHeaders[section];
 	else
 		return NULL;
 }

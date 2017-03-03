@@ -69,6 +69,8 @@ public:
 	}
 	void SetBuffer(char * input, int length)
 	{
+		this->~Disassembler();
+
 		this->bufferLength = length;
 		this->bufferToDisassemble = new char[length];
 		memcpy(this->bufferToDisassemble, input, length);
@@ -5736,15 +5738,7 @@ private:
 		this->nextByteToRead++;
 
 		SetHex();
-
-		stringstream ss;
-		ss << "Undefined Opcode: 0x";
-		if (this->currentInstruction.Prefixes & TWO_BYTE_PREFIX)
-			ss << "0F";
-		ss.width(2);
-		ss.fill('0');
-		ss << hex << (int)this->bufferToDisassemble[this->currentOpcode];
-
+		
 		return 0;
 	}
 	int syscall()
