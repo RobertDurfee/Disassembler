@@ -16,7 +16,7 @@ A `Disassembler` can be initialized by default--where the buffer must be set lat
 
 ### Disassemble
 ```C++
-string Disassemble(int startingAddress = 0x0, int length = 0xFFFFFFFF, int instructions = 0xFFFFFFFF, int flags = 0x0, int baseAddress = 0x0)
+string Disassemble(int startingAddress = 0, int length = -1, int instructions = -1, int flags = 0, int baseAddress = 0)
 ```
 The `Disassemble` method converts the buffer into Intel x86 Assembly language. 
 
@@ -53,10 +53,9 @@ int main()
 
 	Disassembler disasm((char *)pe.GetSection(".text")->Data, pe.GetSection(".text")->Length);
 
-	disasm.Disassemble(pe.GetHeader<EXECUTABLE_OPTIONAL_HEADER>(OPTIONAL_HEADER)->AddressOfEntryPoint - pe.GetHeader<EXECUTABLE_SECTION_HEADER>((pe.GetSectionNumber(".text") << 16) | SECTION_HEADER)->VirtualAddress, -1, 20, DISASSEMBLER_PRINT, pe.GetHeader<EXECUTABLE_SECTION_HEADER>(SECTION_HEADER | (pe.GetSectionNumber(".text") << 16))->VirtualAddress);
+	disasm.Disassemble(pe.GetHeader<EXECUTABLE_OPTIONAL_HEADER>(OPTIONAL_HEADER)->AddressOfEntryPoint - pe.GetHeader<EXECUTABLE_SECTION_HEADER>(SECTION_HEADER | (pe.GetSectionNumber(".text") << 16))->VirtualAddress, -1, 20, DISASSEMBLER_PRINT, pe.GetHeader<EXECUTABLE_SECTION_HEADER>(SECTION_HEADER | (pe.GetSectionNumber(".text") << 16))->VirtualAddress);
 
 	return 0;
-}turn 0;
 }
 ```
 This example takes a sample executable called "Test.exe" and loads the ".text" section into the `Disassembler` and disassembles it. The `startingAddress` is equal to the `AddressOfEntryPoint` minus the `VirtualAddress` of the ".text" section (because `VirtualAddress` is the zero of the buffer to be disassembled). 20 instructions are disassembled and the `baseAddress` is equal to the `VirtualAddress` of the ".text" section.
