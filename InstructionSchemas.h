@@ -1,7 +1,7 @@
 #ifndef INSTRUCTION_SCHEMAS_HEADER
 #define INSTRUCTION_SCHEMAS_HEADER
 
-enum class Mnemonic// : Operator
+enum class Mnemonic
 {
 /* 0x00000 */ _,      //No Operator
 
@@ -481,7 +481,7 @@ const char * MnemonicString[154] =
 /* 0x99 */ "ARPL",   //Adjust RPL field of segment selector
 };
 
-enum class Group// : Operator 
+enum class Group
 { 
 /* 0x00000 */ _,             //No Operator
 
@@ -495,7 +495,7 @@ enum class Group// : Operator
 /* 0x000A0 */ LAST           //Placeholder
 };
 
-enum class Prefix// : Operator 
+enum class Prefix
 { 
 /* 0x00000 */ _,                 //No Operator
 
@@ -517,7 +517,7 @@ enum class Prefix// : Operator
 /* 0x40001 */ LAST               //Placeholder
 };
 
-enum class AddressingMethod// : Operand 
+enum class AddressingMethod
 { 
 /* 0x00 */ _,   //No Operand
 
@@ -539,7 +539,7 @@ enum class AddressingMethod// : Operand
 /* 0x0E */ LAST //Placeholder
 };
 
-enum class Register// : Operand 
+enum class Register
 { 
 /* 0x00 */ _,    //No Operand
 
@@ -604,7 +604,7 @@ const char * RegisterString[38] =
 /* 0x1F */ "BX"
 };
 
-enum class SegmentRegister// : Operand
+enum class SegmentRegister
 {
 /* 0x00 */ _,    //No Operand
 
@@ -632,7 +632,7 @@ const char * SegmentRegisterString[6] =
 /* 0x05 */ "GS"  //G Segment Register
 };
 
-enum class Constant// : Operand 
+enum class Constant
 { 
 /* 0x00 */ _,      //No Operand
 
