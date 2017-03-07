@@ -520,7 +520,7 @@ enum class Prefix : Operator
 /* 0x40001 */ LAST               //Placeholder
 };
 
-enum class AddressingMethodCode : Operand 
+enum class AddressingMethod : Operand 
 { 
 /* 0x00 */ _,   //No Operand
 
@@ -548,7 +548,7 @@ enum class Register : Operand
 
 /* 0x01 */ $,    //Operand Specified in Another Table
 
-/* 0x0E */ A = (Operand)AddressingMethodCode::LAST, //General A Register
+/* 0x0E */ A = (Operand)AddressingMethod::LAST, //General A Register
 /* 0x0F */ C,    //General C Register
 /* 0x10 */ D,    //General D Register
 /* 0x11 */ B,    //General B Register
@@ -651,7 +651,7 @@ const char * ConstantString[1] =
 /* 0x00 */ "1" //The number one (Used only by the shift instruction group)
 };
 
-enum class OperandTypeCode
+enum class OperandType
 { 
 /* 0x00 */ _,   //No Operand Type
 
@@ -674,10 +674,10 @@ struct InstructionSchema
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			if (operands[i].addressingMethodCode == (Operand)AddressingMethodCode::$)
-				operands[i].addressingMethodCode = inst.operands[i].addressingMethodCode;
-			if (operands[i].operandTypeCode == OperandTypeCode::$)
-				operands[i].operandTypeCode = inst.operands[i].operandTypeCode;
+			if (operands[i].addressingMethod == (Operand)AddressingMethod::$)
+				operands[i].addressingMethod = inst.operands[i].addressingMethod;
+			if (operands[i].operandType == OperandType::$)
+				operands[i].operandType = inst.operands[i].operandType;
 		}
 
 		return *this;
@@ -694,8 +694,8 @@ struct InstructionSchema
 	{
 		struct
 		{
-			Operand addressingMethodCode;
-			OperandTypeCode operandTypeCode;
+			Operand addressingMethod;
+			OperandType operandType;
 		};
 		Operand register_;
 		Operand segmentRegister;
@@ -705,383 +705,383 @@ struct InstructionSchema
 
 const InstructionSchema InstructionSchemas[0x100 /*0000 0000 - 1111 1111*/] = 
 { 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 0000 0000 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 0001 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 0010 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 0011 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 0100 */ { (Operator)Mnemonic::ADD,    { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 0101 */ { (Operator)Mnemonic::ADD,    { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 0110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)SegmentRegister::ES,     OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 0111 */ { (Operator)Mnemonic::POP,    { { (Operand)SegmentRegister::ES,     OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 0000 0000 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 0001 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 0010 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 0011 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 0100 */ { (Operator)Mnemonic::ADD,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 0101 */ { (Operator)Mnemonic::ADD,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 0110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)SegmentRegister::ES, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 0111 */ { (Operator)Mnemonic::POP,    { { (Operand)SegmentRegister::ES, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 0000 1000 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 1001 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 1010 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 1011 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 1100 */ { (Operator)Mnemonic::OR,     { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 1101 */ { (Operator)Mnemonic::OR,     { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 1110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)SegmentRegister::CS,     OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0000 1111 */ { (Operator)Group::TwoByte,   { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 0000 1000 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 1001 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 1010 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 1011 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 1100 */ { (Operator)Mnemonic::OR,     { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 1101 */ { (Operator)Mnemonic::OR,     { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 1110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)SegmentRegister::CS, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0000 1111 */ { (Operator)Group::TwoByte,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 0001 0000 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 0001 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 0010 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 0011 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 0100 */ { (Operator)Mnemonic::ADC,    { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 0101 */ { (Operator)Mnemonic::ADC,    { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 0110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)SegmentRegister::SS,     OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 0111 */ { (Operator)Mnemonic::POP,    { { (Operand)SegmentRegister::SS,     OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 0001 0000 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 0001 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 0010 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 0011 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 0100 */ { (Operator)Mnemonic::ADC,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 0101 */ { (Operator)Mnemonic::ADC,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 0110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)SegmentRegister::SS, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 0111 */ { (Operator)Mnemonic::POP,    { { (Operand)SegmentRegister::SS, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 0001 1000 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 1001 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 1010 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 1011 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 1100 */ { (Operator)Mnemonic::SBB,    { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 1101 */ { (Operator)Mnemonic::SBB,    { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 1110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)SegmentRegister::DS,     OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0001 1111 */ { (Operator)Mnemonic::POP,    { { (Operand)SegmentRegister::DS,     OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 0001 1000 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 1001 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 1010 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 1011 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 1100 */ { (Operator)Mnemonic::SBB,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 1101 */ { (Operator)Mnemonic::SBB,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 1110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)SegmentRegister::DS, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0001 1111 */ { (Operator)Mnemonic::POP,    { { (Operand)SegmentRegister::DS, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 0010 0000 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 0001 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 0010 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 0011 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 0100 */ { (Operator)Mnemonic::AND,    { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 0101 */ { (Operator)Mnemonic::AND,    { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 0110 */ { (Operator)Prefix::ES,       { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 0111 */ { (Operator)Mnemonic::DAA,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 0010 0000 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 0001 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 0010 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 0011 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 0100 */ { (Operator)Mnemonic::AND,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 0101 */ { (Operator)Mnemonic::AND,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 0110 */ { (Operator)Prefix::ES,       { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 0111 */ { (Operator)Mnemonic::DAA,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 0010 1000 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 1001 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 1010 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 1011 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 1100 */ { (Operator)Mnemonic::SUB,    { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 1101 */ { (Operator)Mnemonic::SUB,    { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 1110 */ { (Operator)Prefix::CS,       { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0010 1111 */ { (Operator)Mnemonic::DAS,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 0010 1000 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 1001 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 1010 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 1011 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 1100 */ { (Operator)Mnemonic::SUB,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 1101 */ { (Operator)Mnemonic::SUB,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 1110 */ { (Operator)Prefix::CS,       { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0010 1111 */ { (Operator)Mnemonic::DAS,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 0011 0000 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 0001 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 0010 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 0011 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 0100 */ { (Operator)Mnemonic::XOR,    { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 0101 */ { (Operator)Mnemonic::XOR,    { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 0110 */ { (Operator)Prefix::SS,       { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 0111 */ { (Operator)Mnemonic::AAA,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 0011 0000 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 0001 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 0010 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 0011 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 0100 */ { (Operator)Mnemonic::XOR,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 0101 */ { (Operator)Mnemonic::XOR,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 0110 */ { (Operator)Prefix::SS,       { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 0111 */ { (Operator)Mnemonic::AAA,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 0011 1000 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 1001 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 1010 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 1011 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 1100 */ { (Operator)Mnemonic::CMP,    { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 1110 */ { (Operator)Mnemonic::CMP,    { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 1101 */ { (Operator)Prefix::DS,       { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0011 1111 */ { (Operator)Mnemonic::AAS,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 0011 1000 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 1001 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 1010 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 1011 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 1100 */ { (Operator)Mnemonic::CMP,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 1110 */ { (Operator)Mnemonic::CMP,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 1101 */ { (Operator)Prefix::DS,       { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0011 1111 */ { (Operator)Mnemonic::AAS,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 0100 0000 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::A,             OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 0001 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::C,             OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 0010 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::D,             OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 0011 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::B,             OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 0100 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::SP,            OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 0101 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::BP,            OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 0110 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::SI,            OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 0111 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::DI,            OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 0100 0000 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::A,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 0001 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::C,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 0010 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::D,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 0011 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::B,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 0100 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::SP,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 0101 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::BP,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 0110 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::SI,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 0111 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::DI,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 0100 1000 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::A,             OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 1001 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::C,             OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 1010 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::D,             OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 1011 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::B,             OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 1100 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::SP,            OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 1101 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::BP,            OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 1110 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::SI,            OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0100 1111 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::DI,            OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 0100 1000 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::A,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 1001 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::C,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 1010 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::D,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 1011 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::B,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 1100 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::SP,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 1101 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::BP,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 1110 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::SI,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0100 1111 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::DI,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 0101 0000 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 0001 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::C,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 0010 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::D,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 0011 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::B,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 0100 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::SP,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 0101 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::BP,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 0110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::SI,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 0111 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::DI,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 0101 0000 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 0001 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::C,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 0010 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::D,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 0011 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::B,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 0100 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::SP,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 0101 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::BP,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 0110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::SI,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 0111 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::DI,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 0101 1000 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 1001 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::C,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 1010 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::D,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 1011 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::B,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 1100 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::SP,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 1101 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::BP,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 1110 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::SI,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0101 1111 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::DI,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 0101 1000 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 1001 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::C,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 1010 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::D,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 1011 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::B,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 1100 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::SP,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 1101 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::BP,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 1110 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::SI,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0101 1111 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::DI,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 0110 0000 */ { (Operator)Mnemonic::PUSHA,  { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0110 0001 */ { (Operator)Mnemonic::POPA,   { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0110 0010 */ { (Operator)Mnemonic::BOUND,  { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::M, OperandTypeCode::a }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0110 0011 */ { (Operator)Mnemonic::ARPL,   { { (Operand)AddressingMethodCode::E, OperandTypeCode::w }, { (Operand)AddressingMethodCode::G, OperandTypeCode::w }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0110 0100 */ { (Operator)Prefix::FS,       { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0110 0101 */ { (Operator)Prefix::GS,       { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0110 0110 */ { (Operator)Prefix::OPERAND,  { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0110 0111 */ { (Operator)Prefix::ADDRESS,  { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 0110 0000 */ { (Operator)Mnemonic::PUSHA,  { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0110 0001 */ { (Operator)Mnemonic::POPA,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0110 0010 */ { (Operator)Mnemonic::BOUND,  { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::M, OperandType::a }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0110 0011 */ { (Operator)Mnemonic::ARPL,   { { (Operand)AddressingMethod::E, OperandType::w }, { (Operand)AddressingMethod::G, OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0110 0100 */ { (Operator)Prefix::FS,       { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0110 0101 */ { (Operator)Prefix::GS,       { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0110 0110 */ { (Operator)Prefix::OPERAND,  { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0110 0111 */ { (Operator)Prefix::ADDRESS,  { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 0110 1000 */ { (Operator)Mnemonic::PUSH,   { { (Operand)AddressingMethodCode::I, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0110 1001 */ { (Operator)Mnemonic::IMUL,   { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::z } } },
-/* 0110 1010 */ { (Operator)Mnemonic::PUSH,   { { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0110 1011 */ { (Operator)Mnemonic::IMUL,   { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b } } },
-/* 0110 1100 */ { (Operator)Mnemonic::INS,    { { (Operand)AddressingMethodCode::Y, OperandTypeCode::b }, { (Operand)AddressingMethodCode::D, OperandTypeCode::x }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0110 1101 */ { (Operator)Mnemonic::INS,    { { (Operand)AddressingMethodCode::Y, OperandTypeCode::z }, { (Operand)AddressingMethodCode::D, OperandTypeCode::x }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0110 1110 */ { (Operator)Mnemonic::OUTS,   { { (Operand)AddressingMethodCode::D, OperandTypeCode::x }, { (Operand)AddressingMethodCode::X, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0110 1111 */ { (Operator)Mnemonic::OUTS,   { { (Operand)AddressingMethodCode::D, OperandTypeCode::x }, { (Operand)AddressingMethodCode::X, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 0110 1000 */ { (Operator)Mnemonic::PUSH,   { { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0110 1001 */ { (Operator)Mnemonic::IMUL,   { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z } } },
+/* 0110 1010 */ { (Operator)Mnemonic::PUSH,   { { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0110 1011 */ { (Operator)Mnemonic::IMUL,   { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::I, OperandType::b } } },
+/* 0110 1100 */ { (Operator)Mnemonic::INS,    { { (Operand)AddressingMethod::Y, OperandType::b }, { (Operand)AddressingMethod::D, OperandType::x }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0110 1101 */ { (Operator)Mnemonic::INS,    { { (Operand)AddressingMethod::Y, OperandType::z }, { (Operand)AddressingMethod::D, OperandType::x }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0110 1110 */ { (Operator)Mnemonic::OUTS,   { { (Operand)AddressingMethod::D, OperandType::x }, { (Operand)AddressingMethod::X, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0110 1111 */ { (Operator)Mnemonic::OUTS,   { { (Operand)AddressingMethod::D, OperandType::x }, { (Operand)AddressingMethod::X, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 0111 0000 */ { (Operator)Mnemonic::JO,     { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 0001 */ { (Operator)Mnemonic::JNO,    { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 0010 */ { (Operator)Mnemonic::JB,     { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 0011 */ { (Operator)Mnemonic::JNB,    { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 0100 */ { (Operator)Mnemonic::JZ,     { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 0101 */ { (Operator)Mnemonic::JNZ,    { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 0110 */ { (Operator)Mnemonic::JBE,    { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 0111 */ { (Operator)Mnemonic::JNBE,   { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 0111 0000 */ { (Operator)Mnemonic::JO,     { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 0001 */ { (Operator)Mnemonic::JNO,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 0010 */ { (Operator)Mnemonic::JB,     { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 0011 */ { (Operator)Mnemonic::JNB,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 0100 */ { (Operator)Mnemonic::JZ,     { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 0101 */ { (Operator)Mnemonic::JNZ,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 0110 */ { (Operator)Mnemonic::JBE,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 0111 */ { (Operator)Mnemonic::JNBE,   { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 0111 1000 */ { (Operator)Mnemonic::JS,     { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 1001 */ { (Operator)Mnemonic::JNS,    { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 1010 */ { (Operator)Mnemonic::JP,     { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 1011 */ { (Operator)Mnemonic::JNP,    { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 1100 */ { (Operator)Mnemonic::JL,     { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 1101 */ { (Operator)Mnemonic::JNL,    { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 1110 */ { (Operator)Mnemonic::JLE,    { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 0111 1111 */ { (Operator)Mnemonic::JNLE,   { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 0111 1000 */ { (Operator)Mnemonic::JS,     { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 1001 */ { (Operator)Mnemonic::JNS,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 1010 */ { (Operator)Mnemonic::JP,     { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 1011 */ { (Operator)Mnemonic::JNP,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 1100 */ { (Operator)Mnemonic::JL,     { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 1101 */ { (Operator)Mnemonic::JNL,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 1110 */ { (Operator)Mnemonic::JLE,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 0111 1111 */ { (Operator)Mnemonic::JNLE,   { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 1000 0000 */ { (Operator)Group::Immediate, { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 0001 */ { (Operator)Group::Immediate, { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 0010 */ { (Operator)Group::Immediate, { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 0011 */ { (Operator)Group::Immediate, { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 0100 */ { (Operator)Mnemonic::TEST,   { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 0101 */ { (Operator)Mnemonic::TEST,   { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 0110 */ { (Operator)Mnemonic::XCHG,   { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 0111 */ { (Operator)Mnemonic::XCHG,   { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 1000 0000 */ { (Operator)Group::Immediate, { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 0001 */ { (Operator)Group::Immediate, { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 0010 */ { (Operator)Group::Immediate, { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 0011 */ { (Operator)Group::Immediate, { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 0100 */ { (Operator)Mnemonic::TEST,   { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 0101 */ { (Operator)Mnemonic::TEST,   { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 0110 */ { (Operator)Mnemonic::XCHG,   { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 0111 */ { (Operator)Mnemonic::XCHG,   { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 1000 1000 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 1001 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 1010 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::b }, { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 1011 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 1100 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::S, OperandTypeCode::w }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 1101 */ { (Operator)Mnemonic::LEA,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::v }, { (Operand)AddressingMethodCode::M, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 1110 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethodCode::S, OperandTypeCode::w }, { (Operand)AddressingMethodCode::E, OperandTypeCode::w }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1000 1111 */ { (Operator)Mnemonic::POP,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 1000 1000 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 1001 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 1010 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 1011 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 1100 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::S, OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 1101 */ { (Operator)Mnemonic::LEA,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::M, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 1110 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::S, OperandType::w }, { (Operand)AddressingMethod::E, OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1000 1111 */ { (Operator)Mnemonic::POP,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 1001 0000 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 0001 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)Register::C,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 0010 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)Register::D,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 0011 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)Register::B,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 0100 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)Register::SP,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 0101 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)Register::BP,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 0110 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)Register::SI,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 0111 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)Register::DI,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 1001 0000 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 0001 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::C,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 0010 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::D,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 0011 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::B,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 0100 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::SP,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 0101 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::BP,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 0110 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::SI,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 0111 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::DI,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 1001 1000 */ { (Operator)Mnemonic::CBW,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 1001 */ { (Operator)Mnemonic::CWD,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 1010 */ { (Operator)Mnemonic::CALL,   { { (Operand)AddressingMethodCode::A, OperandTypeCode::p }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 1011 */ { (Operator)Mnemonic::WAIT,   { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 1100 */ { (Operator)Mnemonic::PUSHF,  { { (Operand)AddressingMethodCode::F, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 1101 */ { (Operator)Mnemonic::POPF,   { { (Operand)AddressingMethodCode::F, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 1110 */ { (Operator)Mnemonic::SAHF,   { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1001 1111 */ { (Operator)Mnemonic::LAHF,   { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 1001 1000 */ { (Operator)Mnemonic::CBW,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 1001 */ { (Operator)Mnemonic::CWD,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 1010 */ { (Operator)Mnemonic::CALL,   { { (Operand)AddressingMethod::A, OperandType::p }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 1011 */ { (Operator)Mnemonic::WAIT,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 1100 */ { (Operator)Mnemonic::PUSHF,  { { (Operand)AddressingMethod::F, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 1101 */ { (Operator)Mnemonic::POPF,   { { (Operand)AddressingMethod::F, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 1110 */ { (Operator)Mnemonic::SAHF,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1001 1111 */ { (Operator)Mnemonic::LAHF,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 1010 0000 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::O, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 0001 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::O, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 0010 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethodCode::O, OperandTypeCode::b }, { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 0011 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethodCode::O, OperandTypeCode::v }, { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 0100 */ { (Operator)Mnemonic::MOVS,   { { (Operand)AddressingMethodCode::Y, OperandTypeCode::b }, { (Operand)AddressingMethodCode::X, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 0101 */ { (Operator)Mnemonic::MOVS,   { { (Operand)AddressingMethodCode::Y, OperandTypeCode::v }, { (Operand)AddressingMethodCode::X, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 0110 */ { (Operator)Mnemonic::CMPS,   { { (Operand)AddressingMethodCode::X, OperandTypeCode::b }, { (Operand)AddressingMethodCode::Y, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 0111 */ { (Operator)Mnemonic::CMPS,   { { (Operand)AddressingMethodCode::X, OperandTypeCode::v }, { (Operand)AddressingMethodCode::Y, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 1010 0000 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::O, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 0001 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::O, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 0010 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::O, OperandType::b }, { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 0011 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::O, OperandType::v }, { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 0100 */ { (Operator)Mnemonic::MOVS,   { { (Operand)AddressingMethod::Y, OperandType::b }, { (Operand)AddressingMethod::X, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 0101 */ { (Operator)Mnemonic::MOVS,   { { (Operand)AddressingMethod::Y, OperandType::v }, { (Operand)AddressingMethod::X, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 0110 */ { (Operator)Mnemonic::CMPS,   { { (Operand)AddressingMethod::X, OperandType::b }, { (Operand)AddressingMethod::Y, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 0111 */ { (Operator)Mnemonic::CMPS,   { { (Operand)AddressingMethod::X, OperandType::v }, { (Operand)AddressingMethod::Y, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 1010 1000 */ { (Operator)Mnemonic::TEST,   { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 1001 */ { (Operator)Mnemonic::TEST,   { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 1010 */ { (Operator)Mnemonic::STOS,   { { (Operand)AddressingMethodCode::Y, OperandTypeCode::b }, { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 1011 */ { (Operator)Mnemonic::STOS,   { { (Operand)AddressingMethodCode::Y, OperandTypeCode::v }, { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 1100 */ { (Operator)Mnemonic::LODS,   { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::X, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 1101 */ { (Operator)Mnemonic::LODS,   { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::X, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 1110 */ { (Operator)Mnemonic::SCAS,   { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::Y, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1010 1111 */ { (Operator)Mnemonic::SCAS,   { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::Y, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 1010 1000 */ { (Operator)Mnemonic::TEST,   { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 1001 */ { (Operator)Mnemonic::TEST,   { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 1010 */ { (Operator)Mnemonic::STOS,   { { (Operand)AddressingMethod::Y, OperandType::b }, { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 1011 */ { (Operator)Mnemonic::STOS,   { { (Operand)AddressingMethod::Y, OperandType::v }, { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 1100 */ { (Operator)Mnemonic::LODS,   { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::X, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 1101 */ { (Operator)Mnemonic::LODS,   { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::X, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 1110 */ { (Operator)Mnemonic::SCAS,   { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::Y, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1010 1111 */ { (Operator)Mnemonic::SCAS,   { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::Y, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 1011 0000 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 0001 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::C,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 0010 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::D,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 0011 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::B,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 0100 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::SP,            OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 0101 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::BP,            OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 0110 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::SI,            OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 0111 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::DI,            OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 1011 0000 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 0001 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::C,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 0010 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::D,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 0011 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::B,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 0100 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::SP,        OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 0101 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::BP,        OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 0110 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::SI,        OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 0111 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::DI,        OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
  
-/* 1011 1000 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::A,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 1001 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::C,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 1010 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::D,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 1011 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::B,             OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 1100 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::SP,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 1101 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::BP,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 1110 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::SI,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1011 1111 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::DI,            OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 1011 1000 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 1001 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::C,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 1010 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::D,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 1011 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::B,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 1100 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::SP,        OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 1101 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::BP,        OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 1110 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::SI,        OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1011 1111 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::DI,        OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 1100 0000 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 0001 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 0010 */ { (Operator)Mnemonic::RET,    { { (Operand)AddressingMethodCode::I, OperandTypeCode::w }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 0011 */ { (Operator)Mnemonic::RET,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 0100 */ { (Operator)Mnemonic::LES,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::z }, { (Operand)AddressingMethodCode::M, OperandTypeCode::p }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 0101 */ { (Operator)Mnemonic::LDS,    { { (Operand)AddressingMethodCode::G, OperandTypeCode::z }, { (Operand)AddressingMethodCode::M, OperandTypeCode::p }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 0110 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 0111 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::I, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 1100 0000 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 0001 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 0010 */ { (Operator)Mnemonic::RET,    { { (Operand)AddressingMethod::I, OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 0011 */ { (Operator)Mnemonic::RET,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 0100 */ { (Operator)Mnemonic::LES,    { { (Operand)AddressingMethod::G, OperandType::z }, { (Operand)AddressingMethod::M, OperandType::p }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 0101 */ { (Operator)Mnemonic::LDS,    { { (Operand)AddressingMethod::G, OperandType::z }, { (Operand)AddressingMethod::M, OperandType::p }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 0110 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 0111 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 1100 1000 */ { (Operator)Mnemonic::ENTER,  { { (Operand)AddressingMethodCode::I, OperandTypeCode::w }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 1001 */ { (Operator)Mnemonic::LEAVE,  { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 1010 */ { (Operator)Mnemonic::RET,    { { (Operand)AddressingMethodCode::I, OperandTypeCode::w }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 1011 */ { (Operator)Mnemonic::RET,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 1100 */ { (Operator)Mnemonic::INT,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 1101 */ { (Operator)Mnemonic::INT,    { { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 1110 */ { (Operator)Mnemonic::INTO,   { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1100 1111 */ { (Operator)Mnemonic::IRET,   { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 1100 1000 */ { (Operator)Mnemonic::ENTER,  { { (Operand)AddressingMethod::I, OperandType::w }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 1001 */ { (Operator)Mnemonic::LEAVE,  { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 1010 */ { (Operator)Mnemonic::RET,    { { (Operand)AddressingMethod::I, OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 1011 */ { (Operator)Mnemonic::RET,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 1100 */ { (Operator)Mnemonic::INT,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 1101 */ { (Operator)Mnemonic::INT,    { { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 1110 */ { (Operator)Mnemonic::INTO,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1100 1111 */ { (Operator)Mnemonic::IRET,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 1101 0000 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)Constant::ONE,           OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 0001 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)Constant::ONE,           OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 0010 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)Register::C,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 0011 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)Register::C,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 0100 */ { (Operator)Mnemonic::AAM,    { { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 0101 */ { (Operator)Mnemonic::AAD,    { { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 0110 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 0111 */ { (Operator)Mnemonic::XLAT,   { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } }, 
+/*******************************************************************************************************************************************************************************************************/
+/* 1101 0000 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)Constant::ONE,       OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 0001 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)Constant::ONE,       OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 0010 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)Register::C,         OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 0011 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)Register::C,         OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 0100 */ { (Operator)Mnemonic::AAM,    { { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 0101 */ { (Operator)Mnemonic::AAD,    { { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 0110 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 0111 */ { (Operator)Mnemonic::XLAT,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } }, 
 
-/* 1101 1000 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 1001 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 1010 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 1011 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 1100 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 1101 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 1110 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1101 1111 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 1101 1000 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 1001 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 1010 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 1011 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 1100 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 1101 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 1110 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1101 1111 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 1110 0000 */ { (Operator)Mnemonic::LOOPNE, { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 0001 */ { (Operator)Mnemonic::LOOPE,  { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 0010 */ { (Operator)Mnemonic::LOOP,   { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 0011 */ { (Operator)Mnemonic::JECXZ,  { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 0100 */ { (Operator)Mnemonic::IN,     { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 0101 */ { (Operator)Mnemonic::IN,     { { (Operand)Register::A,             OperandTypeCode::z }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 0110 */ { (Operator)Mnemonic::OUT,    { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 0111 */ { (Operator)Mnemonic::OUT,    { { (Operand)Register::A,             OperandTypeCode::z }, { (Operand)AddressingMethodCode::I, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 1110 0000 */ { (Operator)Mnemonic::LOOPNE, { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 0001 */ { (Operator)Mnemonic::LOOPE,  { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 0010 */ { (Operator)Mnemonic::LOOP,   { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 0011 */ { (Operator)Mnemonic::JECXZ,  { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 0100 */ { (Operator)Mnemonic::IN,     { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 0101 */ { (Operator)Mnemonic::IN,     { { (Operand)Register::A,         OperandType::z }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 0110 */ { (Operator)Mnemonic::OUT,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 0111 */ { (Operator)Mnemonic::OUT,    { { (Operand)Register::A,         OperandType::z }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 1110 1000 */ { (Operator)Mnemonic::CALL,   { { (Operand)AddressingMethodCode::J, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 1001 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethodCode::J, OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 1010 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethodCode::A, OperandTypeCode::p }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 1011 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethodCode::J, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 1100 */ { (Operator)Mnemonic::IN,     { { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)Register::D,             OperandTypeCode::w }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 1101 */ { (Operator)Mnemonic::IN,     { { (Operand)Register::A,             OperandTypeCode::z }, { (Operand)Register::D,             OperandTypeCode::w }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 1110 */ { (Operator)Mnemonic::OUT,    { { (Operand)Register::D,             OperandTypeCode::w }, { (Operand)Register::A,             OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1110 1111 */ { (Operator)Mnemonic::OUT,    { { (Operand)Register::D,             OperandTypeCode::w }, { (Operand)Register::A,             OperandTypeCode::z }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/*******************************************************************************************************************************************************************************************************************************/
+/* 1110 1000 */ { (Operator)Mnemonic::CALL,   { { (Operand)AddressingMethod::J, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 1001 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethod::J, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 1010 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethod::A, OperandType::p }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 1011 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 1100 */ { (Operator)Mnemonic::IN,     { { (Operand)Register::A,         OperandType::b }, { (Operand)Register::D,         OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 1101 */ { (Operator)Mnemonic::IN,     { { (Operand)Register::A,         OperandType::z }, { (Operand)Register::D,         OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 1110 */ { (Operator)Mnemonic::OUT,    { { (Operand)Register::D,         OperandType::w }, { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1110 1111 */ { (Operator)Mnemonic::OUT,    { { (Operand)Register::D,         OperandType::w }, { (Operand)Register::A,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/*******************************************************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************************************/
-/* 1111 0000 */ { (Operator)Prefix::LOCK,     { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 0001 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 0010 */ { (Operator)Prefix::REPNE,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 0011 */ { (Operator)Prefix::REPE,     { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 0100 */ { (Operator)Mnemonic::HLT,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 0101 */ { (Operator)Mnemonic::CMC,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 0110 */ { (Operator)Group::Unary,     { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::$, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 0111 */ { (Operator)Group::Unary,     { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::$, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
+/*******************************************************************************************************************************************************************************************************/
+/* 1111 0000 */ { (Operator)Prefix::LOCK,     { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 0001 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 0010 */ { (Operator)Prefix::REPNE,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 0011 */ { (Operator)Prefix::REPE,     { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 0100 */ { (Operator)Mnemonic::HLT,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 0101 */ { (Operator)Mnemonic::CMC,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 0110 */ { (Operator)Group::Unary,     { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::$, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 0111 */ { (Operator)Group::Unary,     { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::$, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
 
-/* 1111 1000 */ { (Operator)Mnemonic::CLC,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 1001 */ { (Operator)Mnemonic::STC,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 1010 */ { (Operator)Mnemonic::CLI,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 1011 */ { (Operator)Mnemonic::STI,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 1100 */ { (Operator)Mnemonic::CLD,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 1101 */ { (Operator)Mnemonic::STD,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 1110 */ { (Operator)Group::Four,      { { (Operand)AddressingMethodCode::E, OperandTypeCode::b }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-/* 1111 1111 */ { (Operator)Group::Five,      { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } }
-/*******************************************************************************************************************************************************************************************************************************/
+/* 1111 1000 */ { (Operator)Mnemonic::CLC,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 1001 */ { (Operator)Mnemonic::STC,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 1010 */ { (Operator)Mnemonic::CLI,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 1011 */ { (Operator)Mnemonic::STI,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 1100 */ { (Operator)Mnemonic::CLD,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 1101 */ { (Operator)Mnemonic::STD,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 1110 */ { (Operator)Group::Four,      { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+/* 1111 1111 */ { (Operator)Group::Five,      { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } }
+/*******************************************************************************************************************************************************************************************************/
 };
 
 const InstructionSchema GroupSchemas[5][0x8 /* 000 - 111 */] =
 {
-	{/*Immediate Group********************************************************************************************************************************************************************************************************/
-	/* 000 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 001 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 010 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 011 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 100 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 101 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 110 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 111 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } }
-	},/***********************************************************************************************************************************************************************************************************************/
+	{/*Immediate Group********************************************************************************************************************************************************************************/
+	/* 000 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 001 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 010 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 011 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 100 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 101 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 110 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 111 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } }
+	},/***********************************************************************************************************************************************************************************************/
 
-	{/*Shift Group************************************************************************************************************************************************************************************************************/
-	/* 000 */ { (Operator)Mnemonic::ROL,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 001 */ { (Operator)Mnemonic::ROR,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 010 */ { (Operator)Mnemonic::RCL,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 011 */ { (Operator)Mnemonic::RCR,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 100 */ { (Operator)Mnemonic::SHL,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 101 */ { (Operator)Mnemonic::SHR,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 110 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 111 */ { (Operator)Mnemonic::SAR,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } }
-	},/***********************************************************************************************************************************************************************************************************************/
+	{/*Shift Group************************************************************************************************************************************************************************************/
+	/* 000 */ { (Operator)Mnemonic::ROL,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 001 */ { (Operator)Mnemonic::ROR,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 010 */ { (Operator)Mnemonic::RCL,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 011 */ { (Operator)Mnemonic::RCR,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 100 */ { (Operator)Mnemonic::SHL,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 101 */ { (Operator)Mnemonic::SHR,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 110 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 111 */ { (Operator)Mnemonic::SAR,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } }
+	},/***********************************************************************************************************************************************************************************************/
 
-	{/*Unary Group************************************************************************************************************************************************************************************************************/
-	/* 000 */ { (Operator)Mnemonic::TEST,   { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::I, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 001 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 010 */ { (Operator)Mnemonic::NOT,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 011 */ { (Operator)Mnemonic::NEG,    { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 100 */ { (Operator)Mnemonic::MUL,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)Register::A,             OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 101 */ { (Operator)Mnemonic::IMUL,   { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)Register::A,             OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 110 */ { (Operator)Mnemonic::DIV,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)Register::A,             OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 111 */ { (Operator)Mnemonic::IDIV,   { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)Register::A,             OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } }
-	},/***********************************************************************************************************************************************************************************************************************/
+	{/*Unary Group************************************************************************************************************************************************************************************/
+	/* 000 */ { (Operator)Mnemonic::TEST,   { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::I, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 001 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 010 */ { (Operator)Mnemonic::NOT,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 011 */ { (Operator)Mnemonic::NEG,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 100 */ { (Operator)Mnemonic::MUL,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)Register::A,         OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 101 */ { (Operator)Mnemonic::IMUL,   { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)Register::A,         OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 110 */ { (Operator)Mnemonic::DIV,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)Register::A,         OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 111 */ { (Operator)Mnemonic::IDIV,   { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)Register::A,         OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } }
+	},/***********************************************************************************************************************************************************************************************/
 
-	{/*Group Four*************************************************************************************************************************************************************************************************************/
-	/* 000 */ { (Operator)Mnemonic::INC,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 001 */ { (Operator)Mnemonic::DEC,    { { (Operand)AddressingMethodCode::$, OperandTypeCode::$ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 010 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 011 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 100 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 101 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 110 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 111 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } }
-	},/***********************************************************************************************************************************************************************************************************************/
+	{/*Group Four*************************************************************************************************************************************************************************************/
+	/* 000 */ { (Operator)Mnemonic::INC,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 001 */ { (Operator)Mnemonic::DEC,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 010 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 011 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 100 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 101 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 110 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 111 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } }
+	},/***********************************************************************************************************************************************************************************************/
 
-	{/*Group Five*************************************************************************************************************************************************************************************************************/
-	/* 000 */ { (Operator)Mnemonic::INC,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 001 */ { (Operator)Mnemonic::DEC,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 010 */ { (Operator)Mnemonic::CALL,   { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 011 */ { (Operator)Mnemonic::CALL,   { { (Operand)AddressingMethodCode::E, OperandTypeCode::p }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 100 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 101 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethodCode::M, OperandTypeCode::p }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)AddressingMethodCode::E, OperandTypeCode::v }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } },
-	/* 111 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ }, { (Operand)AddressingMethodCode::_, OperandTypeCode::_ } } }
-	}/************************************************************************************************************************************************************************************************************************/
+	{/*Group Five*************************************************************************************************************************************************************************************/
+	/* 000 */ { (Operator)Mnemonic::INC,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 001 */ { (Operator)Mnemonic::DEC,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 010 */ { (Operator)Mnemonic::CALL,   { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 011 */ { (Operator)Mnemonic::CALL,   { { (Operand)AddressingMethod::E, OperandType::p }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 100 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 101 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethod::M, OperandType::p }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 111 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } }
+	}/************************************************************************************************************************************************************************************************/
 };
 
 #endif
