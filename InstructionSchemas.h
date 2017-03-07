@@ -1,10 +1,7 @@
 #ifndef INSTRUCTION_SCHEMAS_HEADER
 #define INSTRUCTION_SCHEMAS_HEADER
 
-typedef unsigned long  Operator;
-typedef unsigned long  Operand;
-
-enum class Mnemonic : Operator
+enum class Mnemonic// : Operator
 {
 /* 0x00000 */ _,      //No Operator
 
@@ -484,11 +481,11 @@ const char * MnemonicString[154] =
 /* 0x99 */ "ARPL",   //Adjust RPL field of segment selector
 };
 
-enum class Group : Operator 
+enum class Group// : Operator 
 { 
 /* 0x00000 */ _,             //No Operator
 
-/* 0x0009A */ Immediate = (Operator)Mnemonic::LAST,  //Arithmetic Operations
+/* 0x0009A */ Immediate = (Group)Mnemonic::LAST,  //Arithmetic Operations
 /* 0x0009B */ Shift,         //Shift/Rotate Operations
 /* 0x0009C */ Unary,         //Multiplication, Division, Test, Negate Operations
 /* 0x0009D */ Four,          //Increment, Decrement
@@ -498,7 +495,7 @@ enum class Group : Operator
 /* 0x000A0 */ LAST           //Placeholder
 };
 
-enum class Prefix : Operator 
+enum class Prefix// : Operator 
 { 
 /* 0x00000 */ _,                 //No Operator
 
@@ -520,7 +517,7 @@ enum class Prefix : Operator
 /* 0x40001 */ LAST               //Placeholder
 };
 
-enum class AddressingMethod : Operand 
+enum class AddressingMethod// : Operand 
 { 
 /* 0x00 */ _,   //No Operand
 
@@ -542,13 +539,13 @@ enum class AddressingMethod : Operand
 /* 0x0E */ LAST //Placeholder
 };
 
-enum class Register : Operand 
+enum class Register// : Operand 
 { 
 /* 0x00 */ _,    //No Operand
 
 /* 0x01 */ $,    //Operand Specified in Another Table
 
-/* 0x0E */ A = (Operand)AddressingMethod::LAST, //General A Register
+/* 0x0E */ A = (Register)AddressingMethod::LAST, //General A Register
 /* 0x0F */ C,    //General C Register
 /* 0x10 */ D,    //General D Register
 /* 0x11 */ B,    //General B Register
@@ -607,13 +604,13 @@ const char * RegisterString[38] =
 /* 0x1F */ "BX"
 };
 
-enum class SegmentRegister : Operand
+enum class SegmentRegister// : Operand
 {
 /* 0x00 */ _,    //No Operand
 
 /* 0x01 */ $,    //Operand Specified in Another Table
 
-/* 0x16 */ ES = (Operand)Register::LAST, //E Segment Register
+/* 0x16 */ ES = (SegmentRegister)Register::LAST, //E Segment Register
 /* 0x17 */ CS,    //C Segment Register
 /* 0x18 */ SS,    //S Segment Register
 /* 0x19 */ DS,    //D Segment Register
@@ -635,13 +632,13 @@ const char * SegmentRegisterString[6] =
 /* 0x05 */ "GS"  //G Segment Register
 };
 
-enum class Constant : Operand 
+enum class Constant// : Operand 
 { 
 /* 0x00 */ _,      //No Operand
 
 /* 0x01 */ $,      //Operand Specified in Another Table
 
-/* 0x1C */ ONE = (Operand)SegmentRegister::LAST, //The number one (Used only by the shift instruction group)
+/* 0x1C */ ONE = (Constant)SegmentRegister::LAST, //The number one (Used only by the shift instruction group)
 
 /* 0x1D */ LAST    //Placeholder
 };
@@ -670,429 +667,444 @@ enum class OperandType
 
 #define NUMBER_OF_OPERANDS 3
 
+union Operator
+{
+	Operator() : mnemonic(Mnemonic::_) , prefix(Prefix::_) , group(Group::_) {};
+	Operator(Mnemonic mnemonic) : mnemonic(mnemonic) {};
+	Operator(Prefix prefix) : prefix(prefix) {};
+	Operator(Group group) : group(group) {};
+
+	Mnemonic mnemonic;
+	Prefix prefix;
+	Group group;
+};
+
+union Operand
+{
+	Operand() : addressingMethod(AddressingMethod::_) , operandType(OperandType::_) , register_(Register::_) , segmentRegister(SegmentRegister::_) , constant(Constant::_) {};
+	Operand(AddressingMethod addressingMethod, OperandType operandType) : addressingMethod(addressingMethod), operandType(operandType) {};
+	Operand(Register register_, OperandType operandType) : register_(register_) , operandType(operandType) {};
+	Operand(SegmentRegister segmentRegister, OperandType operandType) : segmentRegister(segmentRegister), operandType(operandType) {};
+	Operand(Constant constant, OperandType operandType) : constant(constant) , operandType(operandType) {};
+
+	struct
+	{
+		AddressingMethod addressingMethod;
+		OperandType operandType;
+	};
+	Register register_;
+	SegmentRegister segmentRegister;
+	Constant constant;
+};
+
 struct InstructionSchema
 {
-	union
-	{
-		Operator mnemonic;
-		Operator prefix;
-		Operator group;
-	} operator_;
+	Operator operator_;
 
-	union
-	{
-		struct
-		{
-			Operand addressingMethod;
-			OperandType operandType;
-		};
-		Operand register_;
-		Operand segmentRegister;
-		Operand constant;
-	} operands[NUMBER_OF_OPERANDS];
+	Operand operands[NUMBER_OF_OPERANDS];
 };
 
 const InstructionSchema operator|(const InstructionSchema& left, const InstructionSchema& right)
 {
 	InstructionSchema output;
 
-	output.operator_.mnemonic = left.operator_.mnemonic;
+	output.operator_.mnemonic = right.operator_.mnemonic;
 
 	for (int i = 0; i < NUMBER_OF_OPERANDS; i++)
 	{
-		if (left.operands[i].addressingMethod == (Operand)AddressingMethod::$)
+		if (left.operands[i].addressingMethod == AddressingMethod::$)
 			output.operands[i].addressingMethod = right.operands[i].addressingMethod;
 		else
 			output.operands[i].addressingMethod = left.operands[i].addressingMethod;
 
 		if (left.operands[i].operandType == OperandType::$)
-			output.operands[i].operandType == right.operands[i].operandType;
+			output.operands[i].operandType = right.operands[i].operandType;
 		else
-			output.operands[i].operandType == left.operands[i].operandType;
+			output.operands[i].operandType = left.operands[i].operandType;
 	}
 
 	return output;
 }
 
-const InstructionSchema InstructionSchemas[0x100 /*0000 0000 - 1111 1111*/] = 
-{ 
-/*******************************************************************************************************************************************************************************************************/
-/* 0x00 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x01 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x02 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x03 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x04 */ { (Operator)Mnemonic::ADD,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x05 */ { (Operator)Mnemonic::ADD,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x06 */ { (Operator)Mnemonic::PUSH,   { { (Operand)SegmentRegister::ES, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x07 */ { (Operator)Mnemonic::POP,    { { (Operand)SegmentRegister::ES, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+const InstructionSchema InstructionSchemas[0x100 /*0000 0000 - 1111 1111*/] =
+{
+	/*************************************************************************************************************************************************************/
+	/* 0x00 */ { Mnemonic::ADD,    { { AddressingMethod::E, OperandType::b }, { AddressingMethod::G, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x01 */ { Mnemonic::ADD,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::G, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x02 */ { Mnemonic::ADD,    { { AddressingMethod::G, OperandType::b }, { AddressingMethod::E, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x03 */ { Mnemonic::ADD,    { { AddressingMethod::G, OperandType::v }, { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x04 */ { Mnemonic::ADD,    { { Register::A,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x05 */ { Mnemonic::ADD,    { { Register::A,         OperandType::v }, { AddressingMethod::I, OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x06 */ { Mnemonic::PUSH,   { { SegmentRegister::ES, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x07 */ { Mnemonic::POP,    { { SegmentRegister::ES, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
 
-/* 0x08 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x09 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x0A */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x0B */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x0C */ { (Operator)Mnemonic::OR,     { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x0D */ { (Operator)Mnemonic::OR,     { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x0E */ { (Operator)Mnemonic::PUSH,   { { (Operand)SegmentRegister::CS, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x0F */ { (Operator)Group::TwoByte,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/* 0x08 */ { Mnemonic::OR,     { { AddressingMethod::E, OperandType::b }, { AddressingMethod::G, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x09 */ { Mnemonic::OR,     { { AddressingMethod::E, OperandType::v }, { AddressingMethod::G, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x0A */ { Mnemonic::OR,     { { AddressingMethod::G, OperandType::b }, { AddressingMethod::E, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x0B */ { Mnemonic::OR,     { { AddressingMethod::G, OperandType::v }, { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x0C */ { Mnemonic::OR,     { { Register::A,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x0D */ { Mnemonic::OR,     { { Register::A,         OperandType::v }, { AddressingMethod::I, OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x0E */ { Mnemonic::PUSH,   { { SegmentRegister::CS, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x0F */ { Group::TwoByte,   { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0x10 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x11 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x12 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x13 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x14 */ { (Operator)Mnemonic::ADC,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x15 */ { (Operator)Mnemonic::ADC,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x16 */ { (Operator)Mnemonic::PUSH,   { { (Operand)SegmentRegister::SS, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x17 */ { (Operator)Mnemonic::POP,    { { (Operand)SegmentRegister::SS, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
+	/* 0x10 */ { Mnemonic::ADC,    { { AddressingMethod::E, OperandType::b }, { AddressingMethod::G, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x11 */ { Mnemonic::ADC,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::G, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x12 */ { Mnemonic::ADC,    { { AddressingMethod::G, OperandType::b }, { AddressingMethod::E, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x13 */ { Mnemonic::ADC,    { { AddressingMethod::G, OperandType::v }, { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x14 */ { Mnemonic::ADC,    { { Register::A,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x15 */ { Mnemonic::ADC,    { { Register::A,         OperandType::v }, { AddressingMethod::I, OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x16 */ { Mnemonic::PUSH,   { { SegmentRegister::SS, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x17 */ { Mnemonic::POP,    { { SegmentRegister::SS, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
 
-/* 0x18 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x19 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x1A */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x1B */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x1C */ { (Operator)Mnemonic::SBB,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x1D */ { (Operator)Mnemonic::SBB,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x1E */ { (Operator)Mnemonic::PUSH,   { { (Operand)SegmentRegister::DS, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x1F */ { (Operator)Mnemonic::POP,    { { (Operand)SegmentRegister::DS, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/* 0x18 */ { Mnemonic::SBB,    { { AddressingMethod::E, OperandType::b }, { AddressingMethod::G, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x19 */ { Mnemonic::SBB,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::G, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x1A */ { Mnemonic::SBB,    { { AddressingMethod::G, OperandType::b }, { AddressingMethod::E, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x1B */ { Mnemonic::SBB,    { { AddressingMethod::G, OperandType::v }, { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x1C */ { Mnemonic::SBB,    { { Register::A,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x1D */ { Mnemonic::SBB,    { { Register::A,         OperandType::v }, { AddressingMethod::I, OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x1E */ { Mnemonic::PUSH,   { { SegmentRegister::DS, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x1F */ { Mnemonic::POP,    { { SegmentRegister::DS, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0x20 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x21 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x22 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x23 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x24 */ { (Operator)Mnemonic::AND,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x25 */ { (Operator)Mnemonic::AND,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x26 */ { (Operator)Prefix::ES,       { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x27 */ { (Operator)Mnemonic::DAA,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
+	/* 0x20 */ { Mnemonic::AND,    { { AddressingMethod::E, OperandType::b }, { AddressingMethod::G, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x21 */ { Mnemonic::AND,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::G, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x22 */ { Mnemonic::AND,    { { AddressingMethod::G, OperandType::b }, { AddressingMethod::E, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x23 */ { Mnemonic::AND,    { { AddressingMethod::G, OperandType::v }, { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x24 */ { Mnemonic::AND,    { { Register::A,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x25 */ { Mnemonic::AND,    { { Register::A,         OperandType::v }, { AddressingMethod::I, OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x26 */ { Prefix::ES,       { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x27 */ { Mnemonic::DAA,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
 
-/* 0x28 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x29 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x2A */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x2B */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x2C */ { (Operator)Mnemonic::SUB,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x2D */ { (Operator)Mnemonic::SUB,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x2E */ { (Operator)Prefix::CS,       { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x2F */ { (Operator)Mnemonic::DAS,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/* 0x28 */ { Mnemonic::SUB,    { { AddressingMethod::E, OperandType::b }, { AddressingMethod::G, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x29 */ { Mnemonic::SUB,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::G, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x2A */ { Mnemonic::SUB,    { { AddressingMethod::G, OperandType::b }, { AddressingMethod::E, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x2B */ { Mnemonic::SUB,    { { AddressingMethod::G, OperandType::v }, { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x2C */ { Mnemonic::SUB,    { { Register::A,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x2D */ { Mnemonic::SUB,    { { Register::A,         OperandType::v }, { AddressingMethod::I, OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x2E */ { Prefix::CS,       { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x2F */ { Mnemonic::DAS,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0x30 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x31 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x32 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x33 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x34 */ { (Operator)Mnemonic::XOR,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x35 */ { (Operator)Mnemonic::XOR,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x36 */ { (Operator)Prefix::SS,       { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x37 */ { (Operator)Mnemonic::AAA,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
+	/* 0x30 */ { Mnemonic::XOR,    { { AddressingMethod::E, OperandType::b }, { AddressingMethod::G, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x31 */ { Mnemonic::XOR,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::G, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x32 */ { Mnemonic::XOR,    { { AddressingMethod::G, OperandType::b }, { AddressingMethod::E, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x33 */ { Mnemonic::XOR,    { { AddressingMethod::G, OperandType::v }, { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x34 */ { Mnemonic::XOR,    { { Register::A,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x35 */ { Mnemonic::XOR,    { { Register::A,         OperandType::v }, { AddressingMethod::I, OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x36 */ { Prefix::SS,       { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x37 */ { Mnemonic::AAA,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
 
-/* 0x38 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x39 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x3A */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x3B */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x3C */ { (Operator)Mnemonic::CMP,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x3E */ { (Operator)Mnemonic::CMP,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x3D */ { (Operator)Prefix::DS,       { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x3F */ { (Operator)Mnemonic::AAS,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/* 0x38 */ { Mnemonic::CMP,    { { AddressingMethod::E, OperandType::b }, { AddressingMethod::G, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x39 */ { Mnemonic::CMP,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::G, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x3A */ { Mnemonic::CMP,    { { AddressingMethod::G, OperandType::b }, { AddressingMethod::E, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x3B */ { Mnemonic::CMP,    { { AddressingMethod::G, OperandType::v }, { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x3C */ { Mnemonic::CMP,    { { Register::A,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x3E */ { Mnemonic::CMP,    { { Register::A,         OperandType::v }, { AddressingMethod::I, OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x3D */ { Prefix::DS,       { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x3F */ { Mnemonic::AAS,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0x40 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::A,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x41 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::C,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x42 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::D,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x43 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::B,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x44 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::SP,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x45 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::BP,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x46 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::SI,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x47 */ { (Operator)Mnemonic::INC,    { { (Operand)Register::DI,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
+	/* 0x40 */ { Mnemonic::INC,    { { Register::A,         OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x41 */ { Mnemonic::INC,    { { Register::C,         OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x42 */ { Mnemonic::INC,    { { Register::D,         OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x43 */ { Mnemonic::INC,    { { Register::B,         OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x44 */ { Mnemonic::INC,    { { Register::SP,        OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x45 */ { Mnemonic::INC,    { { Register::BP,        OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x46 */ { Mnemonic::INC,    { { Register::SI,        OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x47 */ { Mnemonic::INC,    { { Register::DI,        OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
 
-/* 0x48 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::A,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x49 */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::C,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x4A */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::D,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x4B */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::B,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x4C */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::SP,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x4D */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::BP,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x4E */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::SI,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x4F */ { (Operator)Mnemonic::DEC,    { { (Operand)Register::DI,        OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/* 0x48 */ { Mnemonic::DEC,    { { Register::A,         OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x49 */ { Mnemonic::DEC,    { { Register::C,         OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x4A */ { Mnemonic::DEC,    { { Register::D,         OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x4B */ { Mnemonic::DEC,    { { Register::B,         OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x4C */ { Mnemonic::DEC,    { { Register::SP,        OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x4D */ { Mnemonic::DEC,    { { Register::BP,        OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x4E */ { Mnemonic::DEC,    { { Register::SI,        OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x4F */ { Mnemonic::DEC,    { { Register::DI,        OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0x50 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x51 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::C,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x52 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::D,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x53 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::B,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x54 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::SP,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x55 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::BP,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x56 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::SI,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x57 */ { (Operator)Mnemonic::PUSH,   { { (Operand)Register::DI,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
+	/* 0x50 */ { Mnemonic::PUSH,   { { Register::A,         OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x51 */ { Mnemonic::PUSH,   { { Register::C,         OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x52 */ { Mnemonic::PUSH,   { { Register::D,         OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x53 */ { Mnemonic::PUSH,   { { Register::B,         OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x54 */ { Mnemonic::PUSH,   { { Register::SP,        OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x55 */ { Mnemonic::PUSH,   { { Register::BP,        OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x56 */ { Mnemonic::PUSH,   { { Register::SI,        OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x57 */ { Mnemonic::PUSH,   { { Register::DI,        OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
 
-/* 0x58 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x59 */ { (Operator)Mnemonic::POP,    { { (Operand)Register::C,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x5A */ { (Operator)Mnemonic::POP,    { { (Operand)Register::D,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x5B */ { (Operator)Mnemonic::POP,    { { (Operand)Register::B,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x5C */ { (Operator)Mnemonic::POP,    { { (Operand)Register::SP,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x5D */ { (Operator)Mnemonic::POP,    { { (Operand)Register::BP,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x5E */ { (Operator)Mnemonic::POP,    { { (Operand)Register::SI,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x5F */ { (Operator)Mnemonic::POP,    { { (Operand)Register::DI,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/* 0x58 */ { Mnemonic::POP,    { { Register::A,         OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x59 */ { Mnemonic::POP,    { { Register::C,         OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x5A */ { Mnemonic::POP,    { { Register::D,         OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x5B */ { Mnemonic::POP,    { { Register::B,         OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x5C */ { Mnemonic::POP,    { { Register::SP,        OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x5D */ { Mnemonic::POP,    { { Register::BP,        OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x5E */ { Mnemonic::POP,    { { Register::SI,        OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x5F */ { Mnemonic::POP,    { { Register::DI,        OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0x60 */ { (Operator)Mnemonic::PUSHA,  { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x61 */ { (Operator)Mnemonic::POPA,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x62 */ { (Operator)Mnemonic::BOUND,  { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::M, OperandType::a }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x63 */ { (Operator)Mnemonic::ARPL,   { { (Operand)AddressingMethod::E, OperandType::w }, { (Operand)AddressingMethod::G, OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x64 */ { (Operator)Prefix::FS,       { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x65 */ { (Operator)Prefix::GS,       { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x66 */ { (Operator)Prefix::OPERAND,  { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x67 */ { (Operator)Prefix::ADDRESS,  { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
+	/* 0x60 */ { Mnemonic::PUSHA,  { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x61 */ { Mnemonic::POPA,   { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x62 */ { Mnemonic::BOUND,  { { AddressingMethod::G, OperandType::v }, { AddressingMethod::M, OperandType::a }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x63 */ { Mnemonic::ARPL,   { { AddressingMethod::E, OperandType::w }, { AddressingMethod::G, OperandType::w }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x64 */ { Prefix::FS,       { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x65 */ { Prefix::GS,       { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x66 */ { Prefix::OPERAND,  { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x67 */ { Prefix::ADDRESS,  { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
 
-/* 0x68 */ { (Operator)Mnemonic::PUSH,   { { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x69 */ { (Operator)Mnemonic::IMUL,   { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z } } },
-/* 0x6A */ { (Operator)Mnemonic::PUSH,   { { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x6B */ { (Operator)Mnemonic::IMUL,   { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::I, OperandType::b } } },
-/* 0x6C */ { (Operator)Mnemonic::INS,    { { (Operand)AddressingMethod::Y, OperandType::b }, { (Operand)AddressingMethod::D, OperandType::x }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x6D */ { (Operator)Mnemonic::INS,    { { (Operand)AddressingMethod::Y, OperandType::z }, { (Operand)AddressingMethod::D, OperandType::x }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x6E */ { (Operator)Mnemonic::OUTS,   { { (Operand)AddressingMethod::D, OperandType::x }, { (Operand)AddressingMethod::X, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x6F */ { (Operator)Mnemonic::OUTS,   { { (Operand)AddressingMethod::D, OperandType::x }, { (Operand)AddressingMethod::X, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/* 0x68 */ { Mnemonic::PUSH,   { { AddressingMethod::I, OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x69 */ { Mnemonic::IMUL,   { { AddressingMethod::G, OperandType::v }, { AddressingMethod::E, OperandType::v }, { AddressingMethod::I, OperandType::z } } },
+	/* 0x6A */ { Mnemonic::PUSH,   { { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x6B */ { Mnemonic::IMUL,   { { AddressingMethod::G, OperandType::v }, { AddressingMethod::E, OperandType::v }, { AddressingMethod::I, OperandType::b } } },
+	/* 0x6C */ { Mnemonic::INS,    { { AddressingMethod::Y, OperandType::b }, { AddressingMethod::D, OperandType::x }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x6D */ { Mnemonic::INS,    { { AddressingMethod::Y, OperandType::z }, { AddressingMethod::D, OperandType::x }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x6E */ { Mnemonic::OUTS,   { { AddressingMethod::D, OperandType::x }, { AddressingMethod::X, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x6F */ { Mnemonic::OUTS,   { { AddressingMethod::D, OperandType::x }, { AddressingMethod::X, OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0x70 */ { (Operator)Mnemonic::JO,     { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x71 */ { (Operator)Mnemonic::JNO,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x72 */ { (Operator)Mnemonic::JB,     { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x73 */ { (Operator)Mnemonic::JNB,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x74 */ { (Operator)Mnemonic::JZ,     { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x75 */ { (Operator)Mnemonic::JNZ,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x76 */ { (Operator)Mnemonic::JBE,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x77 */ { (Operator)Mnemonic::JNBE,   { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
+	/* 0x70 */ { Mnemonic::JO,     { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x71 */ { Mnemonic::JNO,    { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x72 */ { Mnemonic::JB,     { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x73 */ { Mnemonic::JNB,    { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x74 */ { Mnemonic::JZ,     { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x75 */ { Mnemonic::JNZ,    { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x76 */ { Mnemonic::JBE,    { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x77 */ { Mnemonic::JNBE,   { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
 
-/* 0x78 */ { (Operator)Mnemonic::JS,     { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x79 */ { (Operator)Mnemonic::JNS,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x7A */ { (Operator)Mnemonic::JP,     { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x7B */ { (Operator)Mnemonic::JNP,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x7C */ { (Operator)Mnemonic::JL,     { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x7D */ { (Operator)Mnemonic::JNL,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x7E */ { (Operator)Mnemonic::JLE,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x7F */ { (Operator)Mnemonic::JNLE,   { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/* 0x78 */ { Mnemonic::JS,     { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x79 */ { Mnemonic::JNS,    { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x7A */ { Mnemonic::JP,     { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x7B */ { Mnemonic::JNP,    { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x7C */ { Mnemonic::JL,     { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x7D */ { Mnemonic::JNL,    { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x7E */ { Mnemonic::JLE,    { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x7F */ { Mnemonic::JNLE,   { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0x80 */ { (Operator)Group::Immediate, { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x81 */ { (Operator)Group::Immediate, { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x82 */ { (Operator)Group::Immediate, { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x83 */ { (Operator)Group::Immediate, { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x84 */ { (Operator)Mnemonic::TEST,   { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x85 */ { (Operator)Mnemonic::TEST,   { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x86 */ { (Operator)Mnemonic::XCHG,   { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x87 */ { (Operator)Mnemonic::XCHG,   { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
+	/* 0x80 */ { Group::Immediate, { { AddressingMethod::E, OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x81 */ { Group::Immediate, { { AddressingMethod::E, OperandType::v }, { AddressingMethod::I, OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x82 */ { Group::Immediate, { { AddressingMethod::E, OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x83 */ { Group::Immediate, { { AddressingMethod::E, OperandType::v }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x84 */ { Mnemonic::TEST,   { { AddressingMethod::E, OperandType::b }, { AddressingMethod::G, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x85 */ { Mnemonic::TEST,   { { AddressingMethod::E, OperandType::v }, { AddressingMethod::G, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x86 */ { Mnemonic::XCHG,   { { AddressingMethod::E, OperandType::b }, { AddressingMethod::G, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x87 */ { Mnemonic::XCHG,   { { AddressingMethod::E, OperandType::v }, { AddressingMethod::G, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
 
-/* 0x88 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x89 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x8A */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::G, OperandType::b }, { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x8B */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x8C */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::S, OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x8D */ { (Operator)Mnemonic::LEA,    { { (Operand)AddressingMethod::G, OperandType::v }, { (Operand)AddressingMethod::M, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x8E */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::S, OperandType::w }, { (Operand)AddressingMethod::E, OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x8F */ { (Operator)Mnemonic::POP,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/* 0x88 */ { Mnemonic::MOV,    { { AddressingMethod::E, OperandType::b }, { AddressingMethod::G, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x89 */ { Mnemonic::MOV,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::G, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x8A */ { Mnemonic::MOV,    { { AddressingMethod::G, OperandType::b }, { AddressingMethod::E, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x8B */ { Mnemonic::MOV,    { { AddressingMethod::G, OperandType::v }, { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x8C */ { Mnemonic::MOV,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::S, OperandType::w }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x8D */ { Mnemonic::LEA,    { { AddressingMethod::G, OperandType::v }, { AddressingMethod::M, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x8E */ { Mnemonic::MOV,    { { AddressingMethod::S, OperandType::w }, { AddressingMethod::E, OperandType::w }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x8F */ { Mnemonic::POP,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0x90 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x91 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::C,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x92 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::D,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x93 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::B,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x94 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::SP,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x95 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::BP,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x96 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::SI,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x97 */ { (Operator)Mnemonic::XCHG,   { { (Operand)Register::A,         OperandType::v }, { (Operand)Register::DI,        OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
+	/* 0x90 */ { Mnemonic::XCHG,   { { Register::A,         OperandType::v }, { Register::A,         OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x91 */ { Mnemonic::XCHG,   { { Register::A,         OperandType::v }, { Register::C,         OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x92 */ { Mnemonic::XCHG,   { { Register::A,         OperandType::v }, { Register::D,         OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x93 */ { Mnemonic::XCHG,   { { Register::A,         OperandType::v }, { Register::B,         OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x94 */ { Mnemonic::XCHG,   { { Register::A,         OperandType::v }, { Register::SP,        OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x95 */ { Mnemonic::XCHG,   { { Register::A,         OperandType::v }, { Register::BP,        OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x96 */ { Mnemonic::XCHG,   { { Register::A,         OperandType::v }, { Register::SI,        OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x97 */ { Mnemonic::XCHG,   { { Register::A,         OperandType::v }, { Register::DI,        OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
 
-/* 0x98 */ { (Operator)Mnemonic::CBW,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x99 */ { (Operator)Mnemonic::CWD,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x9A */ { (Operator)Mnemonic::CALL,   { { (Operand)AddressingMethod::A, OperandType::p }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x9B */ { (Operator)Mnemonic::WAIT,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x9C */ { (Operator)Mnemonic::PUSHF,  { { (Operand)AddressingMethod::F, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x9D */ { (Operator)Mnemonic::POPF,   { { (Operand)AddressingMethod::F, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x9E */ { (Operator)Mnemonic::SAHF,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0x9F */ { (Operator)Mnemonic::LAHF,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/* 0x98 */ { Mnemonic::CBW,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x99 */ { Mnemonic::CWD,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x9A */ { Mnemonic::CALL,   { { AddressingMethod::A, OperandType::p }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x9B */ { Mnemonic::WAIT,   { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x9C */ { Mnemonic::PUSHF,  { { AddressingMethod::F, OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x9D */ { Mnemonic::POPF,   { { AddressingMethod::F, OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x9E */ { Mnemonic::SAHF,   { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0x9F */ { Mnemonic::LAHF,   { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0xA0 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::O, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xA1 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::O, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xA2 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::O, OperandType::b }, { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xA3 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::O, OperandType::v }, { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xA4 */ { (Operator)Mnemonic::MOVS,   { { (Operand)AddressingMethod::Y, OperandType::b }, { (Operand)AddressingMethod::X, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xA5 */ { (Operator)Mnemonic::MOVS,   { { (Operand)AddressingMethod::Y, OperandType::v }, { (Operand)AddressingMethod::X, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xA6 */ { (Operator)Mnemonic::CMPS,   { { (Operand)AddressingMethod::X, OperandType::b }, { (Operand)AddressingMethod::Y, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xA7 */ { (Operator)Mnemonic::CMPS,   { { (Operand)AddressingMethod::X, OperandType::v }, { (Operand)AddressingMethod::Y, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
+	/* 0xA0 */ { Mnemonic::MOV,    { { Register::A,         OperandType::b }, { AddressingMethod::O, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xA1 */ { Mnemonic::MOV,    { { Register::A,         OperandType::v }, { AddressingMethod::O, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xA2 */ { Mnemonic::MOV,    { { AddressingMethod::O, OperandType::b }, { Register::A,         OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xA3 */ { Mnemonic::MOV,    { { AddressingMethod::O, OperandType::v }, { Register::A,         OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xA4 */ { Mnemonic::MOVS,   { { AddressingMethod::Y, OperandType::b }, { AddressingMethod::X, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xA5 */ { Mnemonic::MOVS,   { { AddressingMethod::Y, OperandType::v }, { AddressingMethod::X, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xA6 */ { Mnemonic::CMPS,   { { AddressingMethod::X, OperandType::b }, { AddressingMethod::Y, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xA7 */ { Mnemonic::CMPS,   { { AddressingMethod::X, OperandType::v }, { AddressingMethod::Y, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
 
-/* 0xA8 */ { (Operator)Mnemonic::TEST,   { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xA9 */ { (Operator)Mnemonic::TEST,   { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xAA */ { (Operator)Mnemonic::STOS,   { { (Operand)AddressingMethod::Y, OperandType::b }, { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xAB */ { (Operator)Mnemonic::STOS,   { { (Operand)AddressingMethod::Y, OperandType::v }, { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xAC */ { (Operator)Mnemonic::LODS,   { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::X, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xAD */ { (Operator)Mnemonic::LODS,   { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::X, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xAE */ { (Operator)Mnemonic::SCAS,   { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::Y, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xAF */ { (Operator)Mnemonic::SCAS,   { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::Y, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/* 0xA8 */ { Mnemonic::TEST,   { { Register::A,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xA9 */ { Mnemonic::TEST,   { { Register::A,         OperandType::v }, { AddressingMethod::I, OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xAA */ { Mnemonic::STOS,   { { AddressingMethod::Y, OperandType::b }, { Register::A,         OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xAB */ { Mnemonic::STOS,   { { AddressingMethod::Y, OperandType::v }, { Register::A,         OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xAC */ { Mnemonic::LODS,   { { Register::A,         OperandType::b }, { AddressingMethod::X, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xAD */ { Mnemonic::LODS,   { { Register::A,         OperandType::v }, { AddressingMethod::X, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xAE */ { Mnemonic::SCAS,   { { Register::A,         OperandType::b }, { AddressingMethod::Y, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xAF */ { Mnemonic::SCAS,   { { Register::A,         OperandType::v }, { AddressingMethod::Y, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0xB0 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xB1 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::C,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xB2 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::D,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xB3 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::B,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xB4 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::SP,        OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xB5 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::BP,        OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xB6 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::SI,        OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xB7 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::DI,        OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
- 
-/* 0xB8 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::A,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xB9 */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::C,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xBA */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::D,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xBB */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::B,         OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xBC */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::SP,        OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xBD */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::BP,        OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xBE */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::SI,        OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xBF */ { (Operator)Mnemonic::MOV,    { { (Operand)Register::DI,        OperandType::v }, { (Operand)AddressingMethod::I, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/*************************************************************************************************************************************************************/
+	/* 0xB0 */ { Mnemonic::MOV,    { { Register::A,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xB1 */ { Mnemonic::MOV,    { { Register::C,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xB2 */ { Mnemonic::MOV,    { { Register::D,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xB3 */ { Mnemonic::MOV,    { { Register::B,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xB4 */ { Mnemonic::MOV,    { { Register::SP,        OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xB5 */ { Mnemonic::MOV,    { { Register::BP,        OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xB6 */ { Mnemonic::MOV,    { { Register::SI,        OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xB7 */ { Mnemonic::MOV,    { { Register::DI,        OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0xC0 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xC1 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xC2 */ { (Operator)Mnemonic::RET,    { { (Operand)AddressingMethod::I, OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xC3 */ { (Operator)Mnemonic::RET,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xC4 */ { (Operator)Mnemonic::LES,    { { (Operand)AddressingMethod::G, OperandType::z }, { (Operand)AddressingMethod::M, OperandType::p }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xC5 */ { (Operator)Mnemonic::LDS,    { { (Operand)AddressingMethod::G, OperandType::z }, { (Operand)AddressingMethod::M, OperandType::p }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xC6 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xC7 */ { (Operator)Mnemonic::MOV,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::I, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 0xB8 */ { Mnemonic::MOV,    { { Register::A,         OperandType::v }, { AddressingMethod::I, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xB9 */ { Mnemonic::MOV,    { { Register::C,         OperandType::v }, { AddressingMethod::I, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xBA */ { Mnemonic::MOV,    { { Register::D,         OperandType::v }, { AddressingMethod::I, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xBB */ { Mnemonic::MOV,    { { Register::B,         OperandType::v }, { AddressingMethod::I, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xBC */ { Mnemonic::MOV,    { { Register::SP,        OperandType::v }, { AddressingMethod::I, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xBD */ { Mnemonic::MOV,    { { Register::BP,        OperandType::v }, { AddressingMethod::I, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xBE */ { Mnemonic::MOV,    { { Register::SI,        OperandType::v }, { AddressingMethod::I, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xBF */ { Mnemonic::MOV,    { { Register::DI,        OperandType::v }, { AddressingMethod::I, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/* 0xC8 */ { (Operator)Mnemonic::ENTER,  { { (Operand)AddressingMethod::I, OperandType::w }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xC9 */ { (Operator)Mnemonic::LEAVE,  { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xCA */ { (Operator)Mnemonic::RET,    { { (Operand)AddressingMethod::I, OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xCB */ { (Operator)Mnemonic::RET,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xCC */ { (Operator)Mnemonic::INT,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xCD */ { (Operator)Mnemonic::INT,    { { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xCE */ { (Operator)Mnemonic::INTO,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xCF */ { (Operator)Mnemonic::IRET,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/*************************************************************************************************************************************************************/
+	/* 0xC0 */ { Group::Shift,     { { AddressingMethod::E, OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xC1 */ { Group::Shift,     { { AddressingMethod::E, OperandType::v }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xC2 */ { Mnemonic::RET,    { { AddressingMethod::I, OperandType::w }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xC3 */ { Mnemonic::RET,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xC4 */ { Mnemonic::LES,    { { AddressingMethod::G, OperandType::z }, { AddressingMethod::M, OperandType::p }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xC5 */ { Mnemonic::LDS,    { { AddressingMethod::G, OperandType::z }, { AddressingMethod::M, OperandType::p }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xC6 */ { Mnemonic::MOV,    { { AddressingMethod::E, OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xC7 */ { Mnemonic::MOV,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::I, OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0xD0 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)Constant::ONE,       OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xD1 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)Constant::ONE,       OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xD2 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)Register::C,         OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xD3 */ { (Operator)Group::Shift,     { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)Register::C,         OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xD4 */ { (Operator)Mnemonic::AAM,    { { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xD5 */ { (Operator)Mnemonic::AAD,    { { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xD6 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xD7 */ { (Operator)Mnemonic::XLAT,   { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } }, 
+	/* 0xC8 */ { Mnemonic::ENTER,  { { AddressingMethod::I, OperandType::w }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xC9 */ { Mnemonic::LEAVE,  { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xCA */ { Mnemonic::RET,    { { AddressingMethod::I, OperandType::w }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xCB */ { Mnemonic::RET,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xCC */ { Mnemonic::INT,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xCD */ { Mnemonic::INT,    { { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xCE */ { Mnemonic::INTO,   { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xCF */ { Mnemonic::IRET,   { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/* 0xD8 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xD9 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xDA */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xDB */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xDC */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xDD */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xDE */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xDF */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/*************************************************************************************************************************************************************/
+	/* 0xD0 */ { Group::Shift,     { { AddressingMethod::E, OperandType::b }, { Constant::ONE,       OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xD1 */ { Group::Shift,     { { AddressingMethod::E, OperandType::v }, { Constant::ONE,       OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xD2 */ { Group::Shift,     { { AddressingMethod::E, OperandType::b }, { Register::C,         OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xD3 */ { Group::Shift,     { { AddressingMethod::E, OperandType::v }, { Register::C,         OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xD4 */ { Mnemonic::AAM,    { { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xD5 */ { Mnemonic::AAD,    { { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xD6 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xD7 */ { Mnemonic::XLAT,   { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0xE0 */ { (Operator)Mnemonic::LOOPNE, { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xE1 */ { (Operator)Mnemonic::LOOPE,  { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xE2 */ { (Operator)Mnemonic::LOOP,   { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xE3 */ { (Operator)Mnemonic::JECXZ,  { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xE4 */ { (Operator)Mnemonic::IN,     { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xE5 */ { (Operator)Mnemonic::IN,     { { (Operand)Register::A,         OperandType::z }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xE6 */ { (Operator)Mnemonic::OUT,    { { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xE7 */ { (Operator)Mnemonic::OUT,    { { (Operand)Register::A,         OperandType::z }, { (Operand)AddressingMethod::I, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 0xD8 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xD9 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xDA */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xDB */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xDC */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xDD */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xDE */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xDF */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/* 0xE8 */ { (Operator)Mnemonic::CALL,   { { (Operand)AddressingMethod::J, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xE9 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethod::J, OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xEA */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethod::A, OperandType::p }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xEB */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethod::J, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xEC */ { (Operator)Mnemonic::IN,     { { (Operand)Register::A,         OperandType::b }, { (Operand)Register::D,         OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xED */ { (Operator)Mnemonic::IN,     { { (Operand)Register::A,         OperandType::z }, { (Operand)Register::D,         OperandType::w }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xEE */ { (Operator)Mnemonic::OUT,    { { (Operand)Register::D,         OperandType::w }, { (Operand)Register::A,         OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xEF */ { (Operator)Mnemonic::OUT,    { { (Operand)Register::D,         OperandType::w }, { (Operand)Register::A,         OperandType::z }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/*******************************************************************************************************************************************************************************************************/
+	/*************************************************************************************************************************************************************/
+	/* 0xE0 */ { Mnemonic::LOOPNE, { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xE1 */ { Mnemonic::LOOPE,  { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xE2 */ { Mnemonic::LOOP,   { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xE3 */ { Mnemonic::JECXZ,  { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xE4 */ { Mnemonic::IN,     { { Register::A,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xE5 */ { Mnemonic::IN,     { { Register::A,         OperandType::z }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xE6 */ { Mnemonic::OUT,    { { Register::A,         OperandType::b }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xE7 */ { Mnemonic::OUT,    { { Register::A,         OperandType::z }, { AddressingMethod::I, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
 
-/*******************************************************************************************************************************************************************************************************/
-/* 0xF0 */ { (Operator)Prefix::LOCK,     { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xF1 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xF2 */ { (Operator)Prefix::REPNE,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xF3 */ { (Operator)Prefix::REPE,     { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xF4 */ { (Operator)Mnemonic::HLT,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xF5 */ { (Operator)Mnemonic::CMC,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xF6 */ { (Operator)Group::Unary,     { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::$, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xF7 */ { (Operator)Group::Unary,     { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::$, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ } } },
+	/* 0xE8 */ { Mnemonic::CALL,   { { AddressingMethod::J, OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xE9 */ { Mnemonic::JMP,    { { AddressingMethod::J, OperandType::z }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xEA */ { Mnemonic::JMP,    { { AddressingMethod::A, OperandType::p }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xEB */ { Mnemonic::JMP,    { { AddressingMethod::J, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xEC */ { Mnemonic::IN,     { { Register::A,         OperandType::b }, { Register::D,         OperandType::w }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xED */ { Mnemonic::IN,     { { Register::A,         OperandType::z }, { Register::D,         OperandType::w }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xEE */ { Mnemonic::OUT,    { { Register::D,         OperandType::w }, { Register::A,         OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xEF */ { Mnemonic::OUT,    { { Register::D,         OperandType::w }, { Register::A,         OperandType::z }, { AddressingMethod::_, OperandType::_ } } },
+	/*************************************************************************************************************************************************************/
 
-/* 0xF8 */ { (Operator)Mnemonic::CLC,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xF9 */ { (Operator)Mnemonic::STC,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xFA */ { (Operator)Mnemonic::CLI,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xFB */ { (Operator)Mnemonic::STI,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xFC */ { (Operator)Mnemonic::CLD,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xFD */ { (Operator)Mnemonic::STD,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xFE */ { (Operator)Group::Four,      { { (Operand)AddressingMethod::E, OperandType::b }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-/* 0xFF */ { (Operator)Group::Five,      { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } }
-/*******************************************************************************************************************************************************************************************************/
+	/*************************************************************************************************************************************************************/
+	/* 0xF0 */ { Prefix::LOCK,     { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xF1 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xF2 */ { Prefix::REPNE,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xF3 */ { Prefix::REPE,     { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xF4 */ { Mnemonic::HLT,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xF5 */ { Mnemonic::CMC,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xF6 */ { Group::Unary,     { { AddressingMethod::E, OperandType::b }, { AddressingMethod::$, OperandType::b }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xF7 */ { Group::Unary,     { { AddressingMethod::E, OperandType::v }, { AddressingMethod::$, OperandType::v }, { AddressingMethod::_, OperandType::_ } } },
+
+	/* 0xF8 */ { Mnemonic::CLC,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xF9 */ { Mnemonic::STC,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xFA */ { Mnemonic::CLI,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xFB */ { Mnemonic::STI,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xFC */ { Mnemonic::CLD,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xFD */ { Mnemonic::STD,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xFE */ { Group::Four,      { { AddressingMethod::E, OperandType::b }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 0xFF */ { Group::Five,      { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } }
+	/*************************************************************************************************************************************************************/
 };
 
 const InstructionSchema GroupSchemas[5][0x8 /* 000 - 111 */] =
 {
-	{/*Immediate Group********************************************************************************************************************************************************************************/
-	/* 000 */ { (Operator)Mnemonic::ADD,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 001 */ { (Operator)Mnemonic::OR,     { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 010 */ { (Operator)Mnemonic::ADC,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 011 */ { (Operator)Mnemonic::SBB,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 100 */ { (Operator)Mnemonic::AND,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 101 */ { (Operator)Mnemonic::SUB,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 110 */ { (Operator)Mnemonic::XOR,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 111 */ { (Operator)Mnemonic::CMP,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } }
-	},/***********************************************************************************************************************************************************************************************/
+	{/*Immediate Group*******************************************************************************************************************************************/
+	/* 000 */ { Mnemonic::ADD,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 001 */ { Mnemonic::OR,     { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 010 */ { Mnemonic::ADC,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 011 */ { Mnemonic::SBB,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 100 */ { Mnemonic::AND,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 101 */ { Mnemonic::SUB,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 110 */ { Mnemonic::XOR,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 111 */ { Mnemonic::CMP,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } }
+	},/**********************************************************************************************************************************************************/
 
-	{/*Shift Group************************************************************************************************************************************************************************************/
-	/* 000 */ { (Operator)Mnemonic::ROL,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 001 */ { (Operator)Mnemonic::ROR,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 010 */ { (Operator)Mnemonic::RCL,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 011 */ { (Operator)Mnemonic::RCR,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 100 */ { (Operator)Mnemonic::SHL,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 101 */ { (Operator)Mnemonic::SHR,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 110 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 111 */ { (Operator)Mnemonic::SAR,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } }
-	},/***********************************************************************************************************************************************************************************************/
+	{/*Shift Group***********************************************************************************************************************************************/
+	/* 000 */ { Mnemonic::ROL,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 001 */ { Mnemonic::ROR,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 010 */ { Mnemonic::RCL,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 011 */ { Mnemonic::RCR,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 100 */ { Mnemonic::SHL,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 101 */ { Mnemonic::SHR,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 110 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 111 */ { Mnemonic::SAR,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } }
+	},/**********************************************************************************************************************************************************/
 
-	{/*Unary Group************************************************************************************************************************************************************************************/
-	/* 000 */ { (Operator)Mnemonic::TEST,   { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::I, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 001 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 010 */ { (Operator)Mnemonic::NOT,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 011 */ { (Operator)Mnemonic::NEG,    { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 100 */ { (Operator)Mnemonic::MUL,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)Register::A,         OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 101 */ { (Operator)Mnemonic::IMUL,   { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)Register::A,         OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 110 */ { (Operator)Mnemonic::DIV,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)Register::A,         OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 111 */ { (Operator)Mnemonic::IDIV,   { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)Register::A,         OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ } } }
-	},/***********************************************************************************************************************************************************************************************/
+	{/*Unary Group***********************************************************************************************************************************************/
+	/* 000 */ { Mnemonic::TEST,   { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::I, OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 001 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 010 */ { Mnemonic::NOT,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 011 */ { Mnemonic::NEG,    { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 100 */ { Mnemonic::MUL,    { { AddressingMethod::$, OperandType::$ }, { Register::A,         OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 101 */ { Mnemonic::IMUL,   { { AddressingMethod::$, OperandType::$ }, { Register::A,         OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 110 */ { Mnemonic::DIV,    { { AddressingMethod::$, OperandType::$ }, { Register::A,         OperandType::$ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 111 */ { Mnemonic::IDIV,   { { AddressingMethod::$, OperandType::$ }, { Register::A,         OperandType::$ }, { AddressingMethod::_, OperandType::_ } } }
+	},/**********************************************************************************************************************************************************/
 
-	{/*Group Four*************************************************************************************************************************************************************************************/
-	/* 000 */ { (Operator)Mnemonic::INC,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 001 */ { (Operator)Mnemonic::DEC,    { { (Operand)AddressingMethod::$, OperandType::$ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 010 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 011 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 100 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 101 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 110 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 111 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } }
-	},/***********************************************************************************************************************************************************************************************/
+	{/*Group Four************************************************************************************************************************************************/
+	/* 000 */ { Mnemonic::INC,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 001 */ { Mnemonic::DEC,    { { AddressingMethod::$, OperandType::$ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 010 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 011 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 100 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 101 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 110 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 111 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } }
+	},/**********************************************************************************************************************************************************/
 
-	{/*Group Five*************************************************************************************************************************************************************************************/
-	/* 000 */ { (Operator)Mnemonic::INC,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 001 */ { (Operator)Mnemonic::DEC,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 010 */ { (Operator)Mnemonic::CALL,   { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 011 */ { (Operator)Mnemonic::CALL,   { { (Operand)AddressingMethod::E, OperandType::p }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 100 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 101 */ { (Operator)Mnemonic::JMP,    { { (Operand)AddressingMethod::M, OperandType::p }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 110 */ { (Operator)Mnemonic::PUSH,   { { (Operand)AddressingMethod::E, OperandType::v }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } },
-	/* 111 */ { (Operator)Mnemonic::_,      { { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ }, { (Operand)AddressingMethod::_, OperandType::_ } } }
-	}/************************************************************************************************************************************************************************************************/
+	{/*Group Five************************************************************************************************************************************************/
+	/* 000 */ { Mnemonic::INC,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 001 */ { Mnemonic::DEC,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 010 */ { Mnemonic::CALL,   { { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 011 */ { Mnemonic::CALL,   { { AddressingMethod::E, OperandType::p }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 100 */ { Mnemonic::JMP,    { { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 101 */ { Mnemonic::JMP,    { { AddressingMethod::M, OperandType::p }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 110 */ { Mnemonic::PUSH,   { { AddressingMethod::E, OperandType::v }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } },
+	/* 111 */ { Mnemonic::_,      { { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ }, { AddressingMethod::_, OperandType::_ } } }
+	}/***********************************************************************************************************************************************************/
 };
 
 #endif
