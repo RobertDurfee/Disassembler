@@ -1,52 +1,7 @@
 #ifndef MOD_REG_RM_SCHEMAS_HEADER
 #define MOD_REG_RM_SCHEMAS_HEADER
 
-enum class Mod
-{ 
-/* 0x00 */ NoDisp, //Register indirect addressing mode, SIB with no displacement (RM = 100, 32-bit), or displacement only addressing mode (RM = 101, 32-bit or RM = 110, 16-bit)
-/* 0x01 */ Disp,   //Displacement (8-bit, 16-bit, or 32-bit)
-/* 0x02 */ Reg     //Register addressing mode
-};
-
-enum class Reg  
-{ 
-/* 0x00 */ A,  //General A  Register or AL Register (8-bit)
-/* 0x01 */ C,  //General C  Register or CL Register (8-bit)
-/* 0x02 */ D,  //General D  Register or DL Register (8-bit)
-/* 0x03 */ B,  //General B  Register or BL Register (8-bit)
-/* 0x04 */ SP, //General SP Register or AH Register (8-bit)
-/* 0x05 */ BP, //General BP Register or CH Register (8-bit)
-/* 0x06 */ SI, //General SI Register or DH Register (8-bit)
-/* 0x07 */ DI  //General DI Register or BH Register (8-bit)
-};
-
-enum class RM   
-{ 
-/* 0x00 */ $,    //Specified elsewhere (used only in optional rm16 field)
-
-/* 0x01 */ A,    //[EAX] or [BX + SI] (16-bit)
-/* 0x02 */ C,    //[ECX] or [BX + DI] (16-bit)
-/* 0x03 */ D,    //[EDX] or [BP + SI] (16-bit)
-/* 0x04 */ B,    //[EBX] or [BP + DI] (16-bit)
-/* 0x05 */ SP,   //[ESP] or [SI] (16-bit)
-/* 0x06 */ BP,   //[EBP] or [DI] (16-bit)
-/* 0x07 */ SI,   //[ESI] or [BP] (16-bit)
-/* 0x08 */ DI,   //[EDI] or [BX] (16-bit)
-
-/* 0x09 */ Disp, //Displacement (16-bit or 32-bit)
-
-/* 0x0A */ SIB   //The SIB byte is used
-};
-
-enum class Size
-{
-/* 0x00 */ _, //Unspecified
-/* 0x01 */ $, //Specified elsewhere
-
-/* 0x02 */ b, //Byte
-/* 0x03 */ u, //Byte, Word, Dword, Qword, or DQword
-/* 0x04 */ v  //Word or Dword
-};
+#include "ModRegRMEnums.h"
 
 struct ModRegRMSchema
 {
