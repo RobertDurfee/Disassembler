@@ -1,6 +1,15 @@
 #ifndef MOD_REG_RM_STRINGS_HEADER
 #define MOD_REG_RM_STRINGS_HEADER
 
+#ifndef STRING_SIZE_OFFSETS
+#define STRING_SIZE_OFFSETS
+
+	#define EIGHT_BIT     0 +
+	#define SIXTEEN_BIT   1 +
+	#define THIRTYTWO_BIT 2 +
+
+#endif
+
 const char * RegString[24] =
 {
 /* 8-bit Registers */ /* 16-bit Registers */ /* 32-Bit Registers */
@@ -15,21 +24,18 @@ const char * RegString[24] =
   /* 0x15 */ "BH",      /* 0x16 */ "DI",       /* 0x17 */ "EDI", 
 };
 
-const char * RMString[21] =
+const char * RMString[24] =
 {
-  /* 0x00 */ "_",       /* 0x01 */ "_" 
+/* 8-bit Addressing */ /* 16-bit Addressing */ /* 32-bit Addressing */
 
-  /* 0x02 */ "EAX",     /* 0x03 */ "BX + SI",
-  /* 0x04 */ "ECX",     /* 0x05 */ "BX + DI",
-  /* 0x06 */ "EDX",     /* 0x07 */ "BP + SI",
-  /* 0x08 */ "EBX",     /* 0x09 */ "BP + DI",
-  /* 0x0A */ "ESP",     /* 0x0B */ "SI",
-  /* 0x0C */ "EBP",     /* 0x0D */ "DI",
-  /* 0x0E */ "ESI",     /* 0x0F */ "BP",
-  /* 0x10 */ "EDI",     /* 0x11 */ "BX",
-
-  /* 0x12 */ "_",       /* 0x13 */ "_",
-  /* 0x14 */ "_",       /* 0x15 */ "_"
+  /* 0x00 */ "_",       /* 0x01 */ "BX + SI",  /* 0x02 */ "EAX",
+  /* 0x03 */ "_",       /* 0x04 */ "BX + DI",  /* 0x05 */ "ECX",
+  /* 0x06 */ "_",       /* 0x07 */ "BP + SI",  /* 0x08 */ "EDX",
+  /* 0x09 */ "_",       /* 0x0A */ "BP + DI",  /* 0x0B */ "EBX",
+  /* 0x0C */ "_",       /* 0x0D */ "SI",       /* 0x0E */ "ESP",
+  /* 0x0F */ "_",       /* 0x10 */ "DI",       /* 0x11 */ "EBP",
+  /* 0x12 */ "_",       /* 0x13 */ "BP",       /* 0x14 */ "ESI",
+  /* 0x15 */ "_",       /* 0x16 */ "BX",       /* 0x17 */ "EDI"
 };
 
 #endif 

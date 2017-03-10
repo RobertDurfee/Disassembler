@@ -27,16 +27,16 @@ enum class Register
 /* 0x00 */ _,    //No Operand
 /* 0x01 */ $,    //Operand Specified in Another Table
 
-/* 0x0E */ A = (Register)AddressingMethod::LAST, //General A Register
-/* 0x0F */ C,    //General C Register
-/* 0x10 */ D,    //General D Register
-/* 0x11 */ B,    //General B Register
-/* 0x12 */ SP,   //General SP Register
-/* 0x13 */ BP,   //General BP Register
-/* 0x14 */ SI,   //General SI Register
-/* 0x15 */ DI,   //General DI Register
+/* 0x0E */ A = (Register)AddressingMethod::LAST,       //General A Register
+/* 0x11 */ C = A + 3,     //General C Register
+/* 0x14 */ D = C + 3,     //General D Register
+/* 0x17 */ B = D + 3,     //General B Register
+/* 0x1A */ SP = B + 3,    //General SP Register
+/* 0x1D */ BP = SP + 3,   //General BP Register
+/* 0x20 */ SI = BP + 3,   //General SI Register
+/* 0x23 */ DI = SI + 3,   //General DI Register
 
-/* 0x16 */ LAST  //Placeholder
+/* 0x26 */ LAST = DI + 3  //Placeholder
 };
 
 enum class SegmentRegister

@@ -1,11 +1,11 @@
 #ifndef INSTRUCTION_HEADER
 #define INSTRUCTION_HEADER
 
-#include "../DisassemblerTypes.h"      //byte, word, dword
+#include "../DisassemblerTypes.h" //byte, word, dword
 
-#include "InstructionSchemas.h"        //InstructionSchema, InstructionSchemas
+#include "InstructionSchemas.h"   //InstructionSchema, InstructionSchemas
 
-#include "../ModRegRM/ModRegRMEnums.h" //ModRegRM
+#include "../ModRegRM/ModRegRM.h" //ModRegRM
 
 class Instruction
 {
@@ -16,7 +16,9 @@ public:
 	}
 
 private:
-	
+	InstructionSchema schema;
+	ModRegRM modregrm;
+
 };
 
 #endif

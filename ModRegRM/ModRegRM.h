@@ -21,8 +21,8 @@ public:
 
 		SetModRegRMSchema(opcode, index);
 
-		hasAddressPrefix = ((int)prefixes & (int)Prefix::ADDRESS);
-		hasOperandPrefix = ((int)prefixes & (int)Prefix::OPERAND);
+		hasAddressPrefix = ((int)prefixes & (int)Prefix::ADDRESS) != 0;
+		hasOperandPrefix = ((int)prefixes & (int)Prefix::OPERAND) != 0;
 
 		if (HasSIB())
 			SetSIB(opcode, index);
@@ -47,6 +47,11 @@ public:
 	{
 		return (schema.rm16 == RM::Disp && HasAddressPrefix()) || (schema.rm == RM::Disp && !HasAddressPrefix()) || (schema.mod == Mod::Disp);
 	}
+	
+	Size GetDispSize()
+	{
+		return dispSize;
+	}
 
 	byte GetModValue()
 	{
@@ -68,10 +73,6 @@ public:
 	{
 		return (value >> 3) & 0x7;
 	}
-	Size GetDispSize()
-	{
-		return dispSize;
-	}
 	template<typename T>
 	T GetDispValue()
 	{
@@ -92,33 +93,112 @@ public:
 
 	std::string GetModRMString(Size size)
 	{
-		switch (size)
+		std::stringstream output;
+
+		switch (schema.mod)
 		{
-			case Size::b:
+			case Mod::NoDisp:
+				output << "[";
+
+				if (HasRMDisp())
+					output << GetDispString();
+				else if (HasSIB())
+					output << sib.GetString();
+				else
+					output << GetRMAddressString();
+
+				output << "]";
 				break;
-			case Size::v:
+			case Mod::Disp:
+				output << "[";
+
+				if (HasSIB())
+					output << sib.GetString();
+				else
+					output << GetRMAddressString();
+
+				output << " + " << GetDispString() << "]";
 				break;
-			case Size::w:
+			case Mod::Reg:
+				output << GetRMRegString(size);
 				break;
 		}
+
+		return output.str();
 	}
 	std::string GetRegString(Size size)
 	{
 		switch (size)
 		{
 			case Size::b:
-				return RegString[(int)schema.reg];
+				return RegString[EIGHT_BIT (int)schema.reg];
+			case Size::w:
+				return RegString[SIXTEEN_BIT (int)schema.reg];
+			case Size::d:
+				return RegString[THIRTYTWO_BIT (int)schema.reg];
+			case Size::v:
+				if (HasOperandPrefix())
+					return RegString[SIXTEEN_BIT (int)schema.reg];
+				else if (!HasOperandPrefix())
+					return RegString[THIRTYTWO_BIT (int)schema.reg];
+		}
+	}
+	std::string GetRMAddressString()
+	{
+		std::stringstream output;
+		
+		if (HasAddressPrefix())
+			output << RMString[SIXTEEN_BIT ((int)schema.rm16 - (int)RM::A)];
+		else if (!HasAddressPrefix())
+			output << RMString[THIRTYTWO_BIT ((int)schema.rm - (int)RM::A)];
+
+		return output.str();
+	}
+	std::string GetRMRegString(Size size)
+	{
+		std::stringstream output;
+
+		switch (size)
+		{
+			case Size::b:
+				output << RegString[EIGHT_BIT ((int)schema.rm - (int)RM::A)];
+				break;
+			case Size::w:
+				output << RegString[SIXTEEN_BIT ((int)schema.rm - (int)RM::A)];
+				break;
+			case Size::d:
+				output << RegString[THIRTYTWO_BIT ((int)schema.rm - (int)RM::A)];
 				break;
 			case Size::v:
 				if (HasOperandPrefix())
-					return RegString[(int)schema.reg + (8 * 1)];
+					output << RegString[SIXTEEN_BIT ((int)schema.rm - (int)RM::A)];
 				else if (!HasOperandPrefix())
-					return RegString[(int)schema.reg + (8 * 2)];
-				break;
-			case Size::w:
-				return RegString[(int)schema.reg + (8 * 1)];
+					output << RegString[THIRTYTWO_BIT ((int)schema.rm - (int)RM::A)];
 				break;
 		}
+
+		return output.str();
+	}
+	std::string GetDispString()
+	{
+		std::stringstream output;
+
+		switch (dispSize)
+		{
+			case Size::b:
+				output << std::setfill('0') << std::setw(2) << std::hex << (int)disp8;
+				break;
+			case Size::w:
+				output << std::setfill('0') << std::setw(4) << std::hex << disp16;
+				break;
+			case Size::d:
+				output << std::setfill('0') << std::setw(8) << std::hex << disp32;
+				break;
+		}
+
+		output << "h";
+
+		return output.str();
 	}
 
 private:
@@ -145,9 +225,9 @@ private:
 	}
 	void SetDisp(byte * opcode, int * index)
 	{
-		if (HasRMDisp())
+		 if (HasModDisp())
 			SetModDisp(opcode, index);
-		else if (HasModDisp())
+		 else if (HasRMDisp())
 			SetRMDisp(opcode, index);
 	}
 

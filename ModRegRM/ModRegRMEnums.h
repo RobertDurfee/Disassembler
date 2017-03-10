@@ -10,32 +10,32 @@ enum class Mod
 
 enum class Reg
 {
-/* 0x00 */ A,  //General A  Register
-/* 0x01 */ C,  //General C  Register
-/* 0x02 */ D,  //General D  Register
-/* 0x03 */ B,  //General B  Register
-/* 0x04 */ SP, //General SP Register
-/* 0x05 */ BP, //General BP Register
-/* 0x06 */ SI, //General SI Register
-/* 0x07 */ DI  //General DI Register
+/* 0x00 */ A,           //General A Register
+/* 0x03 */ C = A + 3,   //General C Register
+/* 0x06 */ D = C + 3,   //General D Register
+/* 0x09 */ B = D + 3,   //General B Register
+/* 0x0C */ SP = B + 3,  //General SP Register
+/* 0x0F */ BP = SP + 3, //General BP Register
+/* 0x12 */ SI = BP + 3, //General SI Register
+/* 0x15 */ DI = SI + 3  //General DI Register
 };
 
 enum class RM
 {
-/* 0x00 */ $,    //Specified elsewhere (used only in optional rm16 field)
+/* 0x00 */ $,             //Specified elsewhere (used only in optional rm16 field)
 
-/* 0x01 */ A,    //[EAX] or [BX + SI] (16-bit)
-/* 0x02 */ C,    //[ECX] or [BX + DI] (16-bit)
-/* 0x03 */ D,    //[EDX] or [BP + SI] (16-bit)
-/* 0x04 */ B,    //[EBX] or [BP + DI] (16-bit)
-/* 0x05 */ SP,   //[ESP] or [SI] (16-bit)
-/* 0x06 */ BP,   //[EBP] or [DI] (16-bit)
-/* 0x07 */ SI,   //[ESI] or [BP] (16-bit)
-/* 0x08 */ DI,   //[EDI] or [BX] (16-bit)
+/* 0x01 */ A,             //[EAX] or [BX + SI] (16-bit)
+/* 0x03 */ C = A + 3,     //[ECX] or [BX + DI] (16-bit)
+/* 0x05 */ D = C + 3,     //[EDX] or [BP + SI] (16-bit)
+/* 0x07 */ B = D + 3,     //[EBX] or [BP + DI] (16-bit)
+/* 0x09 */ SP = B + 3,    //[ESP] or [SI] (16-bit)
+/* 0x0B */ BP = SP + 3,   //[EBP] or [DI] (16-bit)
+/* 0x0D */ SI = BP + 3,   //[ESI] or [BP] (16-bit)
+/* 0x0F */ DI = SI + 3,   //[EDI] or [BX] (16-bit)
 
-/* 0x09 */ Disp, //Displacement (16-bit or 32-bit)
+/* 0x11 */ Disp = DI + 3, //Displacement (16-bit or 32-bit)
 
-/* 0x0A */ SIB   //The SIB byte is used
+/* 0x12 */ SIB            //The SIB byte is used
 };
 
 #ifndef SIZE_ENUM

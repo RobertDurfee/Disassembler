@@ -1,50 +1,44 @@
 #ifndef INSTRUCTION_OPERAND_STRINGS_HEADER
 #define INSTRUCTION_OPERAND_STRINGS_HEADER
 
-const char * RegisterString[33] = 
+#ifndef STRING_SIZE_OFFSETS
+#define STRING_SIZE_OFFSETS
+
+	#define EIGHT_BIT     0 +
+	#define SIXTEEN_BIT   1 +
+	#define THIRTYTWO_BIT 2 +
+
+#endif
+
+const char * RegisterString[24] = 
 { 
 /* 8-bit Registers */ /* 16-bit Registers */ /* 32-bit Registers */
-	
-  /* 0x00 */ "_",       /* 0x01 */ "_",        /* 0x02 */ "_",
-  /* 0x03 */ "_",       /* 0x04 */ "_",        /* 0x05 */ "_",
 
-  /* 0x06 */ "AL",      /* 0x07 */ "AX",       /* 0x08 */ "EAX",
-  /* 0x09 */ "CL",      /* 0x0A */ "CX",       /* 0x0B */ "ECX",
-  /* 0x0C */ "DL",      /* 0x0D */ "DX",       /* 0x0E */ "EDX",
-  /* 0x0F */ "BL",      /* 0x10 */ "BX",       /* 0x11 */ "EBX",
-  /* 0x12 */ "AH",      /* 0x13 */ "SP",       /* 0x14 */ "ESP",
-  /* 0x15 */ "CH",      /* 0x16 */ "BP",       /* 0x17 */ "EBP",
-  /* 0x18 */ "DH",      /* 0x19 */ "SI",       /* 0x1A */ "ESI",
-  /* 0x1B */ "BH",      /* 0x1C */ "DI",       /* 0x1D */ "EDI",
-
-  /* 0x1E */ "_",       /* 0x1F */ "_",        /* 0x20 */ "_"
+  /* 0x00 */ "AL",      /* 0x01 */ "AX",       /* 0x02 */ "EAX",
+  /* 0x03 */ "CL",      /* 0x04 */ "CX",       /* 0x05 */ "ECX",
+  /* 0x06 */ "DL",      /* 0x07 */ "DX",       /* 0x08 */ "EDX",
+  /* 0x09 */ "BL",      /* 0x0A */ "BX",       /* 0x1B */ "EBX",
+  /* 0x1C */ "AH",      /* 0x1D */ "SP",       /* 0x1E */ "ESP",
+  /* 0x1F */ "CH",      /* 0x10 */ "BP",       /* 0x11 */ "EBP",
+  /* 0x12 */ "DH",      /* 0x13 */ "SI",       /* 0x14 */ "ESI",
+  /* 0x15 */ "BH",      /* 0x16 */ "DI",       /* 0x17 */ "EDI",
 };
 
-const char * SegmentRegisterString[9] =
+const char * SegmentRegisterString[6] =
 {
 /* Segment Registers */
-
-/* 0x00 */ "_",  //Placeholder
-/* 0x01 */ "_",  //Placeholder
-
-/* 0x02 */ "ES", //E Segment Register
-/* 0x03 */ "CS", //C Segment Register
-/* 0x04 */ "SS", //S Segment Register
-/* 0x05 */ "DS", //D Segment Register
-/* 0x06 */ "FS", //F Segment Register
-/* 0x07 */ "GS", //G Segment Register
-
-/* 0x08 */ "_"  //Placeholder
+	
+/* 0x00 */ "ES", //E Segment Register
+/* 0x01 */ "CS", //C Segment Register
+/* 0x02 */ "SS", //S Segment Register
+/* 0x03 */ "DS", //D Segment Register
+/* 0x04 */ "FS", //F Segment Register
+/* 0x05 */ "GS", //G Segment Register
 };
 
-const char * ConstantString[4] = 
+const char * ConstantString[1] = 
 {
-/* 0x00 */ "_",  //Placeholder
-/* 0x01 */ "_",  //Placeholder
-
-/* 0x02 */ "1",  //The number one (Used only by the shift instruction group)
-
-/* 0x03 */ "_"   //Placeholder
+/* 0x00 */ "1",  //The number one (Used only by the shift instruction group)
 };
 
 #endif
