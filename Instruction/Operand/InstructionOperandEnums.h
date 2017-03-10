@@ -79,7 +79,7 @@ enum class Size
 /* 0x07 */ v,   //Word or doubleword, depending on operand-size
 /* 0x08 */ w,   //Word, regardless on operand-size
 /* 0x09 */ x,   //Double-quadword or quad-quadword, depending on operand-size
-/* 0x0A */ z,   //Word of doubleword, depending on operand-size
+/* 0x0A */ z,   //Word or doubleword, depending on operand-size
 };
 #endif
 

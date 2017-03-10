@@ -13,26 +13,20 @@ struct InstructionSchema
 	Operand operands[NUMBER_OF_OPERANDS];
 };
 
-const InstructionSchema& operator|=(const InstructionSchema& left, const InstructionSchema& right)
+InstructionSchema& operator|=(InstructionSchema& left, const InstructionSchema& right)
 {
-	InstructionSchema output; //Possible memory leak...
-
-	output.operator_.mnemonic = right.operator_.mnemonic;
+	left.operator_.mnemonic = right.operator_.mnemonic;
 
 	for (int i = 0; i < NUMBER_OF_OPERANDS; i++)
 	{
 		if (left.operands[i].addressingMethod == AddressingMethod::$)
-			output.operands[i].addressingMethod = right.operands[i].addressingMethod;
-		else
-			output.operands[i].addressingMethod = left.operands[i].addressingMethod;
+			left.operands[i].addressingMethod = right.operands[i].addressingMethod;
 
 		if (left.operands[i].operandSize == Size::$)
-			output.operands[i].operandSize = right.operands[i].operandSize;
-		else
-			output.operands[i].operandSize = left.operands[i].operandSize;
+			left.operands[i].operandSize = right.operands[i].operandSize;
 	}
 
-	return output;
+	return left;
 }
 
 const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
