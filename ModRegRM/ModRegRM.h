@@ -20,11 +20,10 @@ public:
 	{
 		int startingIndex = *index;
 
+		this->prefixes = prefixes;
+
 		SetModRegRMSchema(opcode, index);
-
-		hasAddressPrefix = ((int)prefixes & (int)Prefix::ADDRESS) != 0;
-		hasOperandPrefix = ((int)prefixes & (int)Prefix::OPERAND) != 0;
-
+		
 		if (HasSIB())
 			SetSIB(opcode, index);
 
@@ -36,11 +35,11 @@ public:
 
 	bool HasAddressPrefix()
 	{
-		return hasAddressPrefix;
+		return ((int)prefixes & (int)Prefix::ADDRESS) != 0;
 	}
 	bool HasOperandPrefix()
 	{
-		return hasOperandPrefix;
+		return ((int)prefixes & (int)Prefix::OPERAND) != 0;
 	}
 	bool HasSIB()
 	{
@@ -49,6 +48,23 @@ public:
 	bool HasDisp()
 	{
 		return (schema.rm16 == RM::Disp && HasAddressPrefix()) || (schema.rm == RM::Disp && !HasAddressPrefix()) || (schema.mod == Mod::Disp);
+	}
+	bool HasSegmentPrefix()
+	{
+		if ((int)prefixes & (int)Prefix::ES)
+			return true;
+		if ((int)prefixes & (int)Prefix::CS)
+			return true;
+		if ((int)prefixes & (int)Prefix::SS)
+			return true;
+		if ((int)prefixes & (int)Prefix::DS)
+			return true;
+		if ((int)prefixes & (int)Prefix::FS)
+			return true;
+		if ((int)prefixes & (int)Prefix::GS)
+			return true;
+
+		return false;
 	}
 	
 	Size GetDispSize()
@@ -102,6 +118,9 @@ public:
 			case Mod::NoDisp:
 				output << GetSizeString(size);
 
+				if (HasSegmentPrefix())
+					output << GetSegmentPrefixString();
+
 				output << "[";
 
 				if (HasRMDisp())
@@ -115,6 +134,9 @@ public:
 				break;
 			case Mod::Disp:
 				output << GetSizeString(size);
+
+				if (HasSegmentPrefix())
+					output << GetSegmentPrefixString();
 
 				output << "[";
 
@@ -238,6 +260,25 @@ public:
 
 		return output.str();
 	}
+	std::string GetSegmentPrefixString()
+	{
+		std::stringstream output;
+
+		if ((int)prefixes & (int)Prefix::ES)
+			output << SegmentRegisterString[(int)SegmentRegister::ES - (int)SegmentRegister::ES] << ":";
+		else if ((int)prefixes & (int)Prefix::CS)
+			output << SegmentRegisterString[(int)SegmentRegister::CS - (int)SegmentRegister::ES] << ":";
+		else if ((int)prefixes & (int)Prefix::SS)
+			output << SegmentRegisterString[(int)SegmentRegister::SS - (int)SegmentRegister::ES] << ":";
+		else if ((int)prefixes & (int)Prefix::DS)
+			output << SegmentRegisterString[(int)SegmentRegister::DS - (int)SegmentRegister::ES] << ":";
+		else if ((int)prefixes & (int)Prefix::FS)
+			output << SegmentRegisterString[(int)SegmentRegister::FS - (int)SegmentRegister::ES] << ":";
+		else if ((int)prefixes & (int)Prefix::GS)
+			output << SegmentRegisterString[(int)SegmentRegister::GS - (int)SegmentRegister::ES] << ":";
+
+		return output.str();
+	}
 
 private:
 	ModRegRMSchema schema = EmptyModRegRMSchema; //Contains the ModRegRM configuration for the opcode
@@ -250,8 +291,7 @@ private:
 		dword disp32 = 0;                        //32-bit version
 	};
 	Size dispSize = Size::_;                     //Represents the size of the displacement stored in the union above
-	bool hasOperandPrefix = false;               //Seperate value used to prevent write-access outside of class
-	bool hasAddressPrefix = false;               //Seperate value used to prevent write-access outside of class
+	Prefix prefixes = Prefix::_;                 //Optional instruction prefixes
 
 	void SetModRegRMSchema(byte * opcode, int * index)
 	{

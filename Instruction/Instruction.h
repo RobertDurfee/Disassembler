@@ -27,8 +27,11 @@ public:
 			else if (IsImmediate(operand))
 				SetImmediate(operand, opcode, index);
 
-			else if (IsDisplacement(operand))
-				SetDisplacement(operand, opcode, index);
+			else if (IsRelativeDisplacement(operand))
+				SetRelativeDisplacement(operand, opcode, index);
+
+			else if (IsMemoryDisplacement(operand))
+				SetMemoryDisplacement(operand, opcode, index);
 
 			else if (IsDirectAddress(operand))
 				SetDirectAddress(operand, opcode, index);
@@ -57,6 +60,23 @@ public:
 	{
 		return ((int)prefixes & (int)Prefix::ADDRESS) != 0;
 	}
+	bool HasSegmentPrefix()
+	{
+		if ((int)prefixes & (int)Prefix::ES)
+			return true;
+		if ((int)prefixes & (int)Prefix::CS)
+			return true;
+		if ((int)prefixes & (int)Prefix::SS)
+			return true;
+		if ((int)prefixes & (int)Prefix::DS)
+			return true;
+		if ((int)prefixes & (int)Prefix::FS)
+			return true;
+		if ((int)prefixes & (int)Prefix::GS)
+			return true;
+
+		return false;
+	}
 
 	bool IsModRegRM(int operand)
 	{
@@ -78,9 +98,13 @@ public:
 	{
 		return (schema.operands[operand].addressingMethod == AddressingMethod::I);
 	}
-	bool IsDisplacement(int operand)
+	bool IsRelativeDisplacement(int operand)
 	{
-		return (schema.operands[operand].addressingMethod == AddressingMethod::J) || (schema.operands[operand].addressingMethod == AddressingMethod::O);
+		return (schema.operands[operand].addressingMethod == AddressingMethod::J);
+	}
+	bool IsMemoryDisplacement(int operand)
+	{
+		return (schema.operands[operand].addressingMethod == AddressingMethod::O);
 	}
 	bool IsDirectAddress(int operand)
 	{
@@ -142,28 +166,46 @@ public:
 
 		return output.str();
 	}
-	std::string GetDisplacementString(int operand)
+	std::string GetRelativeDisplacementString(int operand)
 	{
 		std::stringstream output;
 
 		switch (schema.operands[operand].operandSize)
 		{
 			case Size::b:
-				output << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << (int)disp8;
+				output << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << (int)disp8 + (int)value.size();
 				break;
 			case Size::w:
-				output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16;
+				output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16 + (int)value.size();
 				break;
 			case Size::d:
-				output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32;
+				output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32 + (int)value.size();
 				break;
 			case Size::v:
 				if (HasOperandPrefix())
-					output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16;
+					output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16 + (int)value.size();
 				else if (!HasOperandPrefix())
-					output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32;
+					output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32 + (int)value.size();
 				break;
 		}
+
+		output << "h";
+
+		return output.str();
+	}
+	std::string GetMemoryDisplacementString(int operand)
+	{
+		std::stringstream output;
+
+		if (HasSegmentPrefix())
+			output << GetSegmentPrefixString();
+		else if (!HasSegmentPrefix())
+			output << "DS:";
+
+		if (HasAddressPrefix())
+			output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16;
+		else if (!HasAddressPrefix())
+			output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32;
 
 		output << "h";
 
@@ -195,10 +237,21 @@ public:
 		switch (schema.operands[operand].addressingMethod)
 		{
 			case AddressingMethod::X:
-				if (HasOperandPrefix())
-					output << "DS:[SI]";
-				else if (!HasOperandPrefix())
-					output << "DS:[ESI]";
+				if (HasSegmentPrefix())
+				{
+					output << GetSegmentPrefixString();
+					if (HasOperandPrefix())
+						output << "[SI]";
+					else if (!HasOperandPrefix())
+						output << "[ESI]";
+				}
+				else if (!HasSegmentPrefix())
+				{
+					if (HasOperandPrefix())
+						output << "DS:[SI]";
+					else if (!HasOperandPrefix())
+						output << "DS:[ESI]";
+				}
 				break;
 			case AddressingMethod::Y:
 				if (HasOperandPrefix())
@@ -239,6 +292,25 @@ public:
 	{
 		return ConstantString[(int)schema.operands[operand].constant - (int)Constant::ONE];
 	}
+	std::string GetSegmentPrefixString()
+	{
+		std::stringstream output;
+
+		if ((int)prefixes & (int)Prefix::ES)
+			output << SegmentRegisterString[(int)SegmentRegister::ES - (int)SegmentRegister::ES] << ":";
+		else if ((int)prefixes & (int)Prefix::CS)
+			output << SegmentRegisterString[(int)SegmentRegister::CS - (int)SegmentRegister::ES] << ":";
+		else if ((int)prefixes & (int)Prefix::SS)
+			output << SegmentRegisterString[(int)SegmentRegister::SS - (int)SegmentRegister::ES] << ":";
+		else if ((int)prefixes & (int)Prefix::DS)
+			output << SegmentRegisterString[(int)SegmentRegister::DS - (int)SegmentRegister::ES] << ":";
+		else if ((int)prefixes & (int)Prefix::FS)
+			output << SegmentRegisterString[(int)SegmentRegister::FS - (int)SegmentRegister::ES] << ":";
+		else if ((int)prefixes & (int)Prefix::GS)
+			output << SegmentRegisterString[(int)SegmentRegister::GS - (int)SegmentRegister::ES] << ":";
+
+		return output.str();
+	}
 
 	std::string GetOperatorString()
 	{
@@ -262,8 +334,11 @@ public:
 		else if (IsImmediate(operand))
 			return GetImmediateString(operand);
 
-		else if (IsDisplacement(operand))
-			return GetDisplacementString(operand);
+		else if (IsRelativeDisplacement(operand))
+			return GetRelativeDisplacementString(operand);
+
+		else if (IsMemoryDisplacement(operand))
+			return GetMemoryDisplacementString(operand);
 
 		else if (IsDirectAddress(operand))
 			return GetDirectAddressString(operand);
@@ -423,7 +498,7 @@ private:
 			break;
 		}
 	}
-	void SetDisplacement(int operand, byte * opcode, int * index)
+	void SetRelativeDisplacement(int operand, byte * opcode, int * index)
 	{
 		switch (schema.operands[operand].operandSize)
 		{
@@ -437,6 +512,13 @@ private:
 				disp32 = Select<dword>(opcode, index);
 			break;
 		}
+	}
+	void SetMemoryDisplacement(int operand, byte * opcode, int * index)
+	{
+		if (HasAddressPrefix())
+			disp16 = Select<word>(opcode, index);
+		else if (!HasAddressPrefix())
+			disp32 = Select<dword>(opcode, index);
 	}
 	void SetDirectAddress(int operand, byte * opcode, int * index)
 	{
