@@ -76,8 +76,7 @@ public:
 	{
 		return (value[0] >> 3) & 0x7;
 	}
-	template<typename T>
-	T GetDispValue()
+	template<typename T> T GetDispValue()
 	{
 		switch (dispSize)
 		{
@@ -101,6 +100,8 @@ public:
 		switch (schema.mod)
 		{
 			case Mod::NoDisp:
+				output << GetSizeString(size);
+
 				output << "[";
 
 				if (HasRMDisp())
@@ -113,6 +114,8 @@ public:
 				output << "]";
 				break;
 			case Mod::Disp:
+				output << GetSizeString(size);
+
 				output << "[";
 
 				if (HasSIB())
@@ -128,6 +131,30 @@ public:
 		}
 
 		return output.str();
+	}
+	std::string GetSizeString(Size size)
+	{
+		switch (size)
+		{
+			case Size::b:
+				return "BYTE PTR ";
+			case Size::w:
+				return "WORD PTR ";
+			case Size::d:
+				return "DWORD PTR ";
+			case Size::v:
+				if (HasOperandPrefix())
+					return "WORD PTR ";
+				else if (!HasOperandPrefix())
+					return "DWORD PTR ";
+			case Size::a:
+				if (HasOperandPrefix())
+					return "DWORD PTR ";
+				else if (!HasOperandPrefix())
+					return "QWORD PTR ";
+			default:
+				return "";
+		}
 	}
 	std::string GetRegString(Size size, bool segment = false)
 	{

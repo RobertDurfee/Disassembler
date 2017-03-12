@@ -172,6 +172,8 @@ public:
 	std::string GetDirectAddressString(int operand)
 	{
 		std::stringstream output;
+
+		output << GetSizeString(schema.operands[operand].operandSize);
 		
 		output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << sel16 << "h:";
 
@@ -186,19 +188,27 @@ public:
 	}
 	std::string GetFixedAddressString(int operand)
 	{
+		std::stringstream output;
+
+		output << GetSizeString(schema.operands[operand].operandSize);
+
 		switch (schema.operands[operand].addressingMethod)
 		{
 			case AddressingMethod::X:
 				if (HasOperandPrefix())
-					return "DS:[SI]";
+					output << "DS:[SI]";
 				else if (!HasOperandPrefix())
-					return "DS:[ESI]";
+					output << "DS:[ESI]";
+				break;
 			case AddressingMethod::Y:
 				if (HasOperandPrefix())
-					return "ES:[DI]";
-				else if (HasOperandPrefix())
-					return "ES:[EDI]";
+					output << "ES:[DI]";
+				else if (!HasOperandPrefix())
+					output << "ES:[EDI]";
+				break;
 		}
+
+		return output.str();
 	}
 	std::string GetFixedGeneralRegisterString(int operand)
 	{
@@ -276,7 +286,7 @@ public:
 
 		int operand = 0;
 
-		while (schema.operands[operand].addressingMethod != AddressingMethod::_)
+		while (schema.operands[operand].addressingMethod != AddressingMethod::_ && operand < NUMBER_OF_OPERANDS)
 			output << GetOperandString(operand++) << ", ";
 
 		return output.str().substr(0, output.str().length() - 2);
@@ -285,8 +295,8 @@ public:
 	{
 		std::stringstream output;
 
-		for (int i = 0; i < (int)value.size() && i < 7; i++)
-			if (i < 6)
+		for (int i = 0; i < (int)value.size() && i < 8; i++)
+			if (i < 7)
 				output << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << (int)value[i] << " ";
 			else
 				output << "+ ";
@@ -294,11 +304,36 @@ public:
 		return output.str().substr(0, output.str().length() - 1);
 	}
 
+	std::string GetSizeString(Size size)
+	{
+		switch (size)
+		{
+			case Size::b:
+				return "BYTE PTR ";
+			case Size::w:
+				return "WORD PTR ";
+			case Size::d:
+				return "DWORD PTR ";
+			case Size::v:
+				if (HasOperandPrefix())
+					return "WORD PTR ";
+				else if (!HasOperandPrefix())
+					return "DWORD PTR ";
+			case Size::a:
+				if (HasOperandPrefix())
+					return "DWORD PTR ";
+				else if (!HasOperandPrefix())
+					return "QWORD PTR ";
+			default:
+				return "";
+		}
+	}
+
 	std::string GetString()
 	{
 		std::stringstream output;
 
-		output << std::setw(24) << std::left << GetValueString() << " ";
+		output << std::setw(23) << std::left << GetValueString() << " ";
 
 		output << std::setw(6) << std::left << GetOperatorString() << " ";
 
