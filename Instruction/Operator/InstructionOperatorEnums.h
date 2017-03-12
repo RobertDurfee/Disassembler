@@ -278,11 +278,4 @@ enum class Prefix
 /* 0x40001 */ LAST               //Placeholder
 };
 
-Prefix& operator|=(Prefix& left, const Prefix& right)
-{
-	left = (Prefix)((int)left | (int)right);
-
-	return left;
-}
-
 #endif

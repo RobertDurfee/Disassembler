@@ -50,11 +50,11 @@ public:
 	}
 	bool HasOperandPrefix()
 	{
-		return (prefixes & (int)Prefix::OPERAND) != 0;
+		return ((int)prefixes & (int)Prefix::OPERAND) != 0;
 	}
 	bool HasAddressPrefix()
 	{
-		return (prefixes & (int)Prefix::ADDRESS) != 0;
+		return ((int)prefixes & (int)Prefix::ADDRESS) != 0;
 	}
 
 	bool IsModRegRM(int operand)
@@ -310,7 +310,7 @@ private:
 	InstructionSchema schema = EmptyInstructionSchema; //Contains the Instruction configuration for the opcode
 	ModRegRM modregrm;                                 //Optional ModRegRM byte
 	bool hasModregrm = false;                          //Flag that remembers if the ModRegRM byte has been set
-	int prefixes = 0;                                  //Optional instruction prefixes
+	Prefix prefixes = Prefix::_;                       //Optional instruction prefixes
 	std::vector<byte> value;                           //Contains the Instruction opcodes
 	bool hasGroup = false;                             //Flag that remembers if instruction belongs to a group
 	union                                              //Optional immediate(s)
@@ -361,7 +361,7 @@ private:
 	}
 	void SetPrefix()
 	{
-		prefixes |= (int)schema.operator_.prefix;
+		prefixes = (Prefix)((int)prefixes | (int)schema.operator_.prefix);
 	}
 	void SetModRegRM(byte * opcode, int * index)
 	{
