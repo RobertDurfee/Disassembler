@@ -504,21 +504,16 @@ private:
 		{
 		case Size::b:
 			disp8 = Select<byte>(opcode, index);
-			disp8 += *index;
 			break;
 		case Size::v:
 			if (HasOperandPrefix())
-			{
 				disp16 = Select<word>(opcode, index);
-				disp16 += *index;
-			}
 			else if (!HasOperandPrefix())
-			{
 				disp32 = Select<dword>(opcode, index);
-				disp32 += *index;
-			}
 			break;
 		}
+
+		disp32 += *index;
 	}
 	void SetMemoryDisplacement(int operand, byte * opcode, int * index)
 	{
