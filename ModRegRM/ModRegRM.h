@@ -262,22 +262,20 @@ public:
 	}
 	std::string GetSegmentPrefixString()
 	{
-		std::stringstream output;
-
 		if ((int)prefixes & (int)Prefix::ES)
-			output << SegmentRegisterString[(int)SegmentRegister::ES - (int)SegmentRegister::ES] << ":";
+			return "ES:";
 		else if ((int)prefixes & (int)Prefix::CS)
-			output << SegmentRegisterString[(int)SegmentRegister::CS - (int)SegmentRegister::ES] << ":";
+			return "CS:";
 		else if ((int)prefixes & (int)Prefix::SS)
-			output << SegmentRegisterString[(int)SegmentRegister::SS - (int)SegmentRegister::ES] << ":";
+			return "SS:";
 		else if ((int)prefixes & (int)Prefix::DS)
-			output << SegmentRegisterString[(int)SegmentRegister::DS - (int)SegmentRegister::ES] << ":";
+			return "DS:";
 		else if ((int)prefixes & (int)Prefix::FS)
-			output << SegmentRegisterString[(int)SegmentRegister::FS - (int)SegmentRegister::ES] << ":";
+			return "FS:";
 		else if ((int)prefixes & (int)Prefix::GS)
-			output << SegmentRegisterString[(int)SegmentRegister::GS - (int)SegmentRegister::ES] << ":";
+			return "GS:";
 
-		return output.str();
+		return "";
 	}
 
 private:
