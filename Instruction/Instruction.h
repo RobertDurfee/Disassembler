@@ -173,19 +173,19 @@ public:
 		switch (schema.operands[operand].operandSize)
 		{
 			case Size::b:
-				output << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << (int)disp8 + (int)value.size();
+				output << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << (int)disp8;
 				break;
 			case Size::w:
-				output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16 + (int)value.size();
+				output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16;
 				break;
 			case Size::d:
-				output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32 + (int)value.size();
+				output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32;
 				break;
 			case Size::v:
 				if (HasOperandPrefix())
-					output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16 + (int)value.size();
+					output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16;
 				else if (!HasOperandPrefix())
-					output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32 + (int)value.size();
+					output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32;
 				break;
 		}
 
@@ -504,12 +504,19 @@ private:
 		{
 		case Size::b:
 			disp8 = Select<byte>(opcode, index);
+			disp8 += *index;
 			break;
 		case Size::v:
 			if (HasOperandPrefix())
+			{
 				disp16 = Select<word>(opcode, index);
+				disp16 += *index;
+			}
 			else if (!HasOperandPrefix())
+			{
 				disp32 = Select<dword>(opcode, index);
+				disp32 += *index;
+			}
 			break;
 		}
 	}
