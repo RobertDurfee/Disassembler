@@ -12,6 +12,7 @@
 class Instruction
 {
 public:
+	Instruction() {};
 	Instruction(byte * opcode, int * index)
 	{
 		int startingIndex = *index;
