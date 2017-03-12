@@ -152,6 +152,11 @@ public:
 					return "DWORD PTR ";
 				else if (!HasOperandPrefix())
 					return "QWORD PTR ";
+			case Size::p:
+				if (HasOperandPrefix())
+					return "FWORD PTR ";
+				else if (!HasOperandPrefix())
+					return "DWORD PTR ";
 			default:
 				return "";
 		}
