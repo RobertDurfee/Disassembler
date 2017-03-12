@@ -12,20 +12,24 @@
 #include <sstream>                     //stringstream, hex
 #include <iomanip>                     //setfill(), setw()
 
+#include <vector>                      //std::vector
+
 class SIB
 {
 public:
 	SIB() {};
 	SIB(byte * opcode, int * index, Mod mod)
 	{
-		value = Peek<byte>(opcode, index);
-
+		int startingIndex = *index;
+		
 		SetSIBSchema(opcode, index);
 
 		hasDisp = (mod == Mod::NoDisp) && (schema.base == Base::EBP);
 
 		if (HasDisp())
 			SetDisp(opcode, index);
+
+		SetValue(opcode, &startingIndex, index);
 	}
 
 	bool HasIndex()
@@ -47,15 +51,15 @@ public:
 
 	byte GetScaleValue()
 	{
-		return (value >> 6) & 0x3;
+		return (value[0] >> 6) & 0x3;
 	}
 	byte GetIndexValue()
 	{
-		return (value >> 3) & 0x7;
+		return (value[0] >> 3) & 0x7;
 	}
 	byte GetBaseValue()
 	{
-		return value & 0x7;
+		return value[0] & 0x7;
 	}
 	dword GetDispValue()
 	{
@@ -100,10 +104,10 @@ public:
 	}
 
 private:
-	SIBSchema schema;  //Contains SIB configuration for the opcode
-	byte value;        //Contains the SIB opcode
-	dword disp32;      //Only used if there is a 32-bit displacement
-	bool hasDisp;      //Seperate value used to prevent write-access outside of class
+	SIBSchema schema = EmptySIBSchema; //Contains SIB configuration for the opcode
+	std::vector<byte> value;           //Contains the SIB opcodes
+	dword disp32 = 0;                  //Only used if there is a 32-bit displacement
+	bool hasDisp = false;              //Seperate value used to prevent write-access outside of class
 
 	void SetSIBSchema(byte * opcode, int * index)
 	{
@@ -112,6 +116,12 @@ private:
 	void SetDisp(byte * opcode, int * index)
 	{
 		disp32 = Select<dword>(opcode, index);
+	}
+
+	void SetValue(byte * opcode, int * startingIndex, int * endingIndex)
+	{
+		while (*startingIndex != *endingIndex)
+			value.push_back(Select<byte>(opcode, startingIndex));
 	}
 };
 

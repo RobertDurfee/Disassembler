@@ -23,6 +23,8 @@ struct ModRegRMSchema
 	};
 };
 
+const ModRegRMSchema EmptyModRegRMSchema = { { Mod::_, Size::_ }, { Reg::_, Size::_ }, { RM::_, Size::_, RM::_ } };
+
 const ModRegRMSchema ModRegRMSchemas[0x100 /* 00 000 000 - 11 111 111 */] = 
 {
 /***************************************************************************************************/

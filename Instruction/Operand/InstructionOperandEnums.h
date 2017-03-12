@@ -6,20 +6,38 @@ enum class AddressingMethod
 /* 0x00 */ _,   //No Operand
 /* 0x01 */ $,   //Operand Specified in Another Table
 
-/* 0x02 */ A,   //Direct Address: [Segment]:[Offset]
-/* 0x03 */ D,   //Reg field of ModRegRM specifies a debug register
-/* 0x04 */ E,   //ModRegRM specifies a general purpose register or memory address
-/* 0x05 */ F,   //EFLAGS Register
-/* 0x06 */ G,   //Reg field of ModRegRM specifies a general register
-/* 0x07 */ I,   //Immediate data
-/* 0x08 */ J,   //Relative offset
-/* 0x09 */ M,   //ModRegRM only specifies memory address
-/* 0x0A */ O,   //Memory offset relative to the segment base
-/* 0x0B */ S,   //Reg field of ModRegRM specifies a segment register
-/* 0x0C */ X,   //Memory addressed by the DS:rSI regsiter pair
-/* 0x0D */ Y,   //Memory addressed by the ES:rDI register pair
+/* Direct Address */
 
-/* 0x0E */ LAST //Placeholder
+/* 0x02 */ A,   //Direct Address: [Segment]:[Offset]
+
+/* Relative Address Displacement Operand */
+
+/* 0x03 */ J,   //Relative offset
+/* 0x04 */ O,   //Memory offset relative to the segment base
+
+/* ModRM Operand */
+
+/* 0x05 */ E,   //ModRegRM specifies a general purpose register or memory address
+/* 0x06 */ M,   //ModRegRM only specifies memory address
+
+/* General Register Operand */
+
+/* 0x07 */ G,   //Reg field of ModRegRM specifies a general register
+
+/* Segment Register Operand */
+
+/* 0x08 */ S,   //Reg field of ModRegRM specifies a segment register
+
+/* Immediate Operand */
+
+/* 0x09 */ I,   //Immediate data
+
+/* Fixed Address Operand */
+
+/* 0x0A */ X,   //Memory addressed by the DS:rSI regsiter pair
+/* 0x0B */ Y,   //Memory addressed by the ES:rDI register pair
+
+/* 0x0C */ LAST //Placeholder
 };
 
 enum class Register
@@ -27,16 +45,16 @@ enum class Register
 /* 0x00 */ _,    //No Operand
 /* 0x01 */ $,    //Operand Specified in Another Table
 
-/* 0x0E */ A = (Register)AddressingMethod::LAST,       //General A Register
-/* 0x11 */ C = A + 3,     //General C Register
-/* 0x14 */ D = C + 3,     //General D Register
-/* 0x17 */ B = D + 3,     //General B Register
-/* 0x1A */ SP = B + 3,    //General SP Register
-/* 0x1D */ BP = SP + 3,   //General BP Register
-/* 0x20 */ SI = BP + 3,   //General SI Register
-/* 0x23 */ DI = SI + 3,   //General DI Register
+/* 0x0C */ A = (Register)AddressingMethod::LAST,       //General A Register
+/* 0x0F */ C = A + 3,     //General C Register
+/* 0x12 */ D = C + 3,     //General D Register
+/* 0x15 */ B = D + 3,     //General B Register
+/* 0x18 */ SP = B + 3,    //General SP Register
+/* 0x1B */ BP = SP + 3,   //General BP Register
+/* 0x1E */ SI = BP + 3,   //General SI Register
+/* 0x21 */ DI = SI + 3,   //General DI Register
 
-/* 0x26 */ LAST = DI + 3  //Placeholder
+/* 0x24 */ LAST = DI + 3  //Placeholder
 };
 
 enum class SegmentRegister
@@ -44,14 +62,14 @@ enum class SegmentRegister
 /* 0x00 */ _,    //No Operand
 /* 0x01 */ $,    //Operand Specified in Another Table
 
-/* 0x16 */ ES = (SegmentRegister)Register::LAST, //E Segment Register
-/* 0x17 */ CS,    //C Segment Register
-/* 0x18 */ SS,    //S Segment Register
-/* 0x19 */ DS,    //D Segment Register
-/* 0x1A */ FS,    //F Segment Register
-/* 0x1B */ GS,    //G Segment Register
+/* 0x24 */ ES = (SegmentRegister)Register::LAST,          //E Segment Register
+/* 0x27 */ CS = ES + 3,    //C Segment Register
+/* 0x2A */ SS = CS + 3,    //S Segment Register
+/* 0x2D */ DS = CS + 3,    //D Segment Register
+/* 0x30 */ FS = DS + 3,    //F Segment Register
+/* 0x33 */ GS = FS + 3,    //G Segment Register
 
-/* 0x1C */ LAST   //Placeholder
+/* 0x36 */ LAST = GS + 3   //Placeholder
 };
 
 enum class Constant
@@ -59,9 +77,9 @@ enum class Constant
 /* 0x00 */ _,      //No Operand
 /* 0x01 */ $,      //Operand Specified in Another Table
 
-/* 0x1C */ ONE = (Constant)SegmentRegister::LAST, //The number one (Used only by the shift instruction group)
+/* 0x36 */ ONE = (Constant)SegmentRegister::LAST, //The number one (Used only by the shift instruction group)
 
-/* 0x1D */ LAST    //Placeholder
+/* 0x37 */ LAST    //Placeholder
 };
 
 #ifndef SIZE_ENUM
@@ -71,15 +89,16 @@ enum class Size
 /* 0x00 */ _,   //No Size
 /* 0x01 */ $,   //Size Specified in Another Table
 
-/* 0x02 */ a,   //Two one-word or two double-word operands in memory, depending on operand-size
-/* 0x03 */ b,   //Byte, regardless of operand-size
+/* 0x02 */ b,   //Byte, regardless of operand-size
+/* 0x03 */ w,   //Word, regardless on operand-size
 /* 0x04 */ d,   //Dword, regardless of operand-size
-/* 0x05 */ p,   //32-bit pointer
-/* 0x06 */ u,   //Byte, word, dword, quadword, or double-quadword, depending on operand-size
-/* 0x07 */ v,   //Word or doubleword, depending on operand-size
-/* 0x08 */ w,   //Word, regardless on operand-size
-/* 0x09 */ x,   //Double-quadword or quad-quadword, depending on operand-size
-/* 0x0A */ z,   //Word or doubleword, depending on operand-size
+
+/* 0x05 */ v,   //Word or doubleword, depending on operand-size
+/* 0x06 */ u,   //Byte, word, or doubleword depending on operand-size
+
+/* 0x07 */ a,   //Two word or two doubleword operands in memory, depending on operand-size
+
+/* 0x08 */ p,   //32-bit pointer
 };
 #endif
 

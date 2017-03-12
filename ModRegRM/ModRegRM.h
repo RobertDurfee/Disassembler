@@ -10,6 +10,7 @@
 #include "../SIB/SIB.h"                                       //SIB
 
 #include "../Instruction/Operator/InstructionOperatorEnums.h" //Prefix
+#include "../Instruction/Operand/InstructionOperandStrings.h" //SegmentRegisterString
 
 class ModRegRM
 {
@@ -17,7 +18,7 @@ public:
 	ModRegRM() {};
 	ModRegRM(byte * opcode, int * index, Prefix prefixes)
 	{
-		value = Peek<byte>(opcode, index);
+		int startingIndex = *index;
 
 		SetModRegRMSchema(opcode, index);
 
@@ -29,6 +30,8 @@ public:
 
 		if (HasDisp())
 			SetDisp(opcode, index);
+
+		SetValue(opcode, &startingIndex, index);
 	}
 
 	bool HasAddressPrefix()
@@ -55,23 +58,23 @@ public:
 
 	byte GetModValue()
 	{
-		return (value >> 6) & 0x3;
+		return (value[0] >> 6) & 0x3;
 	}
 	byte GetRegValue()
 	{
-		return (value >> 3) & 0x7;
+		return (value[0] >> 3) & 0x7;
 	}
 	byte GetRMValue()
 	{
-		return value & 0x7;
+		return value[0] & 0x7;
 	}
 	byte GetModRMValue()
 	{
-		return ((value >> 3) & 0x18) | (value & 0x7);
+		return ((value[0] >> 3) & 0x18) | (value[0] & 0x7);
 	}
 	byte GetOpcodeExtensionValue()
 	{
-		return (value >> 3) & 0x7;
+		return (value[0] >> 3) & 0x7;
 	}
 	template<typename T>
 	T GetDispValue()
@@ -126,22 +129,25 @@ public:
 
 		return output.str();
 	}
-	std::string GetRegString(Size size)
+	std::string GetRegString(Size size, bool segment = false)
 	{
-		switch (size)
-		{
-			case Size::b:
-				return RegString[EIGHT_BIT (int)schema.reg];
-			case Size::w:
-				return RegString[SIXTEEN_BIT (int)schema.reg];
-			case Size::d:
-				return RegString[THIRTYTWO_BIT (int)schema.reg];
-			case Size::v:
-				if (HasOperandPrefix())
-					return RegString[SIXTEEN_BIT (int)schema.reg];
-				else if (!HasOperandPrefix())
-					return RegString[THIRTYTWO_BIT (int)schema.reg];
-		}
+		if (!segment)
+			switch (size)
+			{
+				case Size::b:
+					return RegString[EIGHT_BIT((int)schema.reg - (int)Reg::A)];
+				case Size::w:
+					return RegString[SIXTEEN_BIT((int)schema.reg - (int)Reg::A)];
+				case Size::d:
+					return RegString[THIRTYTWO_BIT((int)schema.reg - (int)Reg::A)];
+				case Size::v:
+					if (HasOperandPrefix())
+						return RegString[SIXTEEN_BIT((int)schema.reg - (int)Reg::A)];
+					else if (!HasOperandPrefix())
+						return RegString[THIRTYTWO_BIT((int)schema.reg - (int)Reg::A)];
+			}
+		else if (segment)
+			return SegmentRegisterString[(int)schema.reg - (int)Reg::A];
 	}
 	std::string GetRMAddressString()
 	{
@@ -186,13 +192,13 @@ public:
 		switch (dispSize)
 		{
 			case Size::b:
-				output << std::setfill('0') << std::setw(2) << std::hex << (int)disp8;
+				output << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << (int)disp8;
 				break;
 			case Size::w:
-				output << std::setfill('0') << std::setw(4) << std::hex << disp16;
+				output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16;
 				break;
 			case Size::d:
-				output << std::setfill('0') << std::setw(8) << std::hex << disp32;
+				output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32;
 				break;
 		}
 
@@ -202,18 +208,18 @@ public:
 	}
 
 private:
-	ModRegRMSchema schema; //Contains the ModRegRM configuration for the opcode
-	byte value;            //Contains the ModRegRM opcode
-	SIB sib;               //Optional scale index base byte
-	union                  //Optional displacement
+	ModRegRMSchema schema = EmptyModRegRMSchema; //Contains the ModRegRM configuration for the opcode
+	std::vector<byte> value;                     //Contains the ModRegRM opcodes
+	SIB sib;                                     //Optional scale index base byte
+	union                                        //Optional displacement
 	{
-		byte disp8;        //8-bit version
-		word disp16;       //16-bit version
-		dword disp32;      //32-bit version
+		byte disp8;                              //8-bit version
+		word disp16;                             //16-bit version
+		dword disp32 = 0;                        //32-bit version
 	};
-	Size dispSize;         //Represents the size of the displacement stored in the union above
-	bool hasOperandPrefix; //Seperate value used to prevent write-access outside of class
-	bool hasAddressPrefix; //Seperate value used to prevent write-access outside of class
+	Size dispSize = Size::_;                     //Represents the size of the displacement stored in the union above
+	bool hasOperandPrefix = false;               //Seperate value used to prevent write-access outside of class
+	bool hasAddressPrefix = false;               //Seperate value used to prevent write-access outside of class
 
 	void SetModRegRMSchema(byte * opcode, int * index)
 	{
@@ -274,6 +280,12 @@ private:
 			disp32 = Select<dword>(opcode, index);
 			dispSize = Size::d;
 		}
+	}
+
+	void SetValue(byte * opcode, int * startingIndex, int * endingIndex)
+	{
+		while (*startingIndex != *endingIndex)
+			value.push_back(Select<byte>(opcode, startingIndex));
 	}
 };
 

@@ -29,6 +29,8 @@ InstructionSchema& operator|=(InstructionSchema& left, const InstructionSchema& 
 	return left;
 }
 
+const InstructionSchema EmptyInstructionSchema = { Mnemonic::_, { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } };
+
 const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 {
 /****************************************************************************************************************************************/
@@ -37,7 +39,7 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0x02 */ { Mnemonic::ADD,    { { AddressingMethod::G, Size::b }, { AddressingMethod::E, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0x03 */ { Mnemonic::ADD,    { { AddressingMethod::G, Size::v }, { AddressingMethod::E, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x04 */ { Mnemonic::ADD,    { { Register::A,         Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0x05 */ { Mnemonic::ADD,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0x05 */ { Mnemonic::ADD,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x06 */ { Mnemonic::PUSH,   { { SegmentRegister::ES, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x07 */ { Mnemonic::POP,    { { SegmentRegister::ES, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 
@@ -46,7 +48,7 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0x0A */ { Mnemonic::OR,     { { AddressingMethod::G, Size::b }, { AddressingMethod::E, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0x0B */ { Mnemonic::OR,     { { AddressingMethod::G, Size::v }, { AddressingMethod::E, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x0C */ { Mnemonic::OR,     { { Register::A,         Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0x0D */ { Mnemonic::OR,     { { Register::A,         Size::v }, { AddressingMethod::I, Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0x0D */ { Mnemonic::OR,     { { Register::A,         Size::v }, { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x0E */ { Mnemonic::PUSH,   { { SegmentRegister::CS, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x0F */ { Group::TwoByte,   { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /****************************************************************************************************************************************/
@@ -57,7 +59,7 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0x12 */ { Mnemonic::ADC,    { { AddressingMethod::G, Size::b }, { AddressingMethod::E, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0x13 */ { Mnemonic::ADC,    { { AddressingMethod::G, Size::v }, { AddressingMethod::E, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x14 */ { Mnemonic::ADC,    { { Register::A,         Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0x15 */ { Mnemonic::ADC,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0x15 */ { Mnemonic::ADC,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x16 */ { Mnemonic::PUSH,   { { SegmentRegister::SS, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x17 */ { Mnemonic::POP,    { { SegmentRegister::SS, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 
@@ -66,7 +68,7 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0x1A */ { Mnemonic::SBB,    { { AddressingMethod::G, Size::b }, { AddressingMethod::E, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0x1B */ { Mnemonic::SBB,    { { AddressingMethod::G, Size::v }, { AddressingMethod::E, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x1C */ { Mnemonic::SBB,    { { Register::A,         Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0x1D */ { Mnemonic::SBB,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0x1D */ { Mnemonic::SBB,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x1E */ { Mnemonic::PUSH,   { { SegmentRegister::DS, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x1F */ { Mnemonic::POP,    { { SegmentRegister::DS, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /****************************************************************************************************************************************/
@@ -77,7 +79,7 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0x22 */ { Mnemonic::AND,    { { AddressingMethod::G, Size::b }, { AddressingMethod::E, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0x23 */ { Mnemonic::AND,    { { AddressingMethod::G, Size::v }, { AddressingMethod::E, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x24 */ { Mnemonic::AND,    { { Register::A,         Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0x25 */ { Mnemonic::AND,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0x25 */ { Mnemonic::AND,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x26 */ { Prefix::ES,       { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x27 */ { Mnemonic::DAA,    { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 
@@ -86,7 +88,7 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0x2A */ { Mnemonic::SUB,    { { AddressingMethod::G, Size::b }, { AddressingMethod::E, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0x2B */ { Mnemonic::SUB,    { { AddressingMethod::G, Size::v }, { AddressingMethod::E, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x2C */ { Mnemonic::SUB,    { { Register::A,         Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0x2D */ { Mnemonic::SUB,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0x2D */ { Mnemonic::SUB,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x2E */ { Prefix::CS,       { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x2F */ { Mnemonic::DAS,    { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /****************************************************************************************************************************************/
@@ -97,7 +99,7 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0x32 */ { Mnemonic::XOR,    { { AddressingMethod::G, Size::b }, { AddressingMethod::E, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0x33 */ { Mnemonic::XOR,    { { AddressingMethod::G, Size::v }, { AddressingMethod::E, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x34 */ { Mnemonic::XOR,    { { Register::A,         Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0x35 */ { Mnemonic::XOR,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0x35 */ { Mnemonic::XOR,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x36 */ { Prefix::SS,       { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x37 */ { Mnemonic::AAA,    { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 
@@ -106,29 +108,29 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0x3A */ { Mnemonic::CMP,    { { AddressingMethod::G, Size::b }, { AddressingMethod::E, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0x3B */ { Mnemonic::CMP,    { { AddressingMethod::G, Size::v }, { AddressingMethod::E, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x3C */ { Mnemonic::CMP,    { { Register::A,         Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0x3E */ { Mnemonic::CMP,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0x3E */ { Mnemonic::CMP,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x3D */ { Prefix::DS,       { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x3F */ { Mnemonic::AAS,    { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /****************************************************************************************************************************************/
 
 /****************************************************************************************************************************************/
-/* 0x40 */ { Mnemonic::INC,    { { Register::A,         Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x41 */ { Mnemonic::INC,    { { Register::C,         Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x42 */ { Mnemonic::INC,    { { Register::D,         Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x43 */ { Mnemonic::INC,    { { Register::B,         Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x44 */ { Mnemonic::INC,    { { Register::SP,        Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x45 */ { Mnemonic::INC,    { { Register::BP,        Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x46 */ { Mnemonic::INC,    { { Register::SI,        Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x47 */ { Mnemonic::INC,    { { Register::DI,        Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x40 */ { Mnemonic::INC,    { { Register::A,         Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x41 */ { Mnemonic::INC,    { { Register::C,         Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x42 */ { Mnemonic::INC,    { { Register::D,         Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x43 */ { Mnemonic::INC,    { { Register::B,         Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x44 */ { Mnemonic::INC,    { { Register::SP,        Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x45 */ { Mnemonic::INC,    { { Register::BP,        Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x46 */ { Mnemonic::INC,    { { Register::SI,        Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x47 */ { Mnemonic::INC,    { { Register::DI,        Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 
-/* 0x48 */ { Mnemonic::DEC,    { { Register::A,         Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x49 */ { Mnemonic::DEC,    { { Register::C,         Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x4A */ { Mnemonic::DEC,    { { Register::D,         Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x4B */ { Mnemonic::DEC,    { { Register::B,         Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x4C */ { Mnemonic::DEC,    { { Register::SP,        Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x4D */ { Mnemonic::DEC,    { { Register::BP,        Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x4E */ { Mnemonic::DEC,    { { Register::SI,        Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x4F */ { Mnemonic::DEC,    { { Register::DI,        Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x48 */ { Mnemonic::DEC,    { { Register::A,         Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x49 */ { Mnemonic::DEC,    { { Register::C,         Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x4A */ { Mnemonic::DEC,    { { Register::D,         Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x4B */ { Mnemonic::DEC,    { { Register::B,         Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x4C */ { Mnemonic::DEC,    { { Register::SP,        Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x4D */ { Mnemonic::DEC,    { { Register::BP,        Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x4E */ { Mnemonic::DEC,    { { Register::SI,        Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x4F */ { Mnemonic::DEC,    { { Register::DI,        Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /****************************************************************************************************************************************/
 
 /****************************************************************************************************************************************/
@@ -161,14 +163,14 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0x66 */ { Prefix::OPERAND,  { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x67 */ { Prefix::ADDRESS,  { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 
-/* 0x68 */ { Mnemonic::PUSH,   { { AddressingMethod::I, Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x69 */ { Mnemonic::IMUL,   { { AddressingMethod::G, Size::v }, { AddressingMethod::E, Size::v }, { AddressingMethod::I, Size::z } } },
+/* 0x68 */ { Mnemonic::PUSH,   { { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x69 */ { Mnemonic::IMUL,   { { AddressingMethod::G, Size::v }, { AddressingMethod::E, Size::v }, { AddressingMethod::I, Size::v } } },
 /* 0x6A */ { Mnemonic::PUSH,   { { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x6B */ { Mnemonic::IMUL,   { { AddressingMethod::G, Size::v }, { AddressingMethod::E, Size::v }, { AddressingMethod::I, Size::b } } },
-/* 0x6C */ { Mnemonic::INS,    { { AddressingMethod::Y, Size::b }, { AddressingMethod::D, Size::x }, { AddressingMethod::_, Size::_ } } },
-/* 0x6D */ { Mnemonic::INS,    { { AddressingMethod::Y, Size::z }, { AddressingMethod::D, Size::x }, { AddressingMethod::_, Size::_ } } },
-/* 0x6E */ { Mnemonic::OUTS,   { { AddressingMethod::D, Size::x }, { AddressingMethod::X, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0x6F */ { Mnemonic::OUTS,   { { AddressingMethod::D, Size::x }, { AddressingMethod::X, Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0x6C */ { Mnemonic::INS,    { { AddressingMethod::Y, Size::b }, { Register::D,         Size::w }, { AddressingMethod::_, Size::_ } } },
+/* 0x6D */ { Mnemonic::INS,    { { AddressingMethod::Y, Size::v }, { Register::D,         Size::w }, { AddressingMethod::_, Size::_ } } },
+/* 0x6E */ { Mnemonic::OUTS,   { { Register::D,         Size::w }, { AddressingMethod::X, Size::b }, { AddressingMethod::_, Size::_ } } },
+/* 0x6F */ { Mnemonic::OUTS,   { { Register::D,         Size::w }, { AddressingMethod::X, Size::v }, { AddressingMethod::_, Size::_ } } },
 /****************************************************************************************************************************************/
 
 /****************************************************************************************************************************************/
@@ -193,7 +195,7 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 
 /****************************************************************************************************************************************/
 /* 0x80 */ { Group::Immediate, { { AddressingMethod::E, Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0x81 */ { Group::Immediate, { { AddressingMethod::E, Size::v }, { AddressingMethod::I, Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0x81 */ { Group::Immediate, { { AddressingMethod::E, Size::v }, { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x82 */ { Group::Immediate, { { AddressingMethod::E, Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0x83 */ { Group::Immediate, { { AddressingMethod::E, Size::v }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0x84 */ { Mnemonic::TEST,   { { AddressingMethod::E, Size::b }, { AddressingMethod::G, Size::b }, { AddressingMethod::_, Size::_ } } },
@@ -225,8 +227,8 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0x99 */ { Mnemonic::CWD,    { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x9A */ { Mnemonic::CALL,   { { AddressingMethod::A, Size::p }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x9B */ { Mnemonic::WAIT,   { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x9C */ { Mnemonic::PUSHF,  { { AddressingMethod::F, Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x9D */ { Mnemonic::POPF,   { { AddressingMethod::F, Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x9C */ { Mnemonic::PUSHF,  { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x9D */ { Mnemonic::POPF,   { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x9E */ { Mnemonic::SAHF,   { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0x9F */ { Mnemonic::LAHF,   { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /****************************************************************************************************************************************/
@@ -242,7 +244,7 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0xA7 */ { Mnemonic::CMPS,   { { AddressingMethod::X, Size::v }, { AddressingMethod::Y, Size::v }, { AddressingMethod::_, Size::_ } } },
 
 /* 0xA8 */ { Mnemonic::TEST,   { { Register::A,         Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0xA9 */ { Mnemonic::TEST,   { { Register::A,         Size::v }, { AddressingMethod::I, Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0xA9 */ { Mnemonic::TEST,   { { Register::A,         Size::v }, { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0xAA */ { Mnemonic::STOS,   { { AddressingMethod::Y, Size::b }, { Register::A,         Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0xAB */ { Mnemonic::STOS,   { { AddressingMethod::Y, Size::v }, { Register::A,         Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0xAC */ { Mnemonic::LODS,   { { Register::A,         Size::b }, { AddressingMethod::X, Size::b }, { AddressingMethod::_, Size::_ } } },
@@ -276,10 +278,10 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0xC1 */ { Group::Shift,     { { AddressingMethod::E, Size::v }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0xC2 */ { Mnemonic::RET,    { { AddressingMethod::I, Size::w }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0xC3 */ { Mnemonic::RET,    { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0xC4 */ { Mnemonic::LES,    { { AddressingMethod::G, Size::z }, { AddressingMethod::M, Size::p }, { AddressingMethod::_, Size::_ } } },
-/* 0xC5 */ { Mnemonic::LDS,    { { AddressingMethod::G, Size::z }, { AddressingMethod::M, Size::p }, { AddressingMethod::_, Size::_ } } },
+/* 0xC4 */ { Mnemonic::LES,    { { AddressingMethod::G, Size::v }, { AddressingMethod::M, Size::p }, { AddressingMethod::_, Size::_ } } },
+/* 0xC5 */ { Mnemonic::LDS,    { { AddressingMethod::G, Size::v }, { AddressingMethod::M, Size::p }, { AddressingMethod::_, Size::_ } } },
 /* 0xC6 */ { Mnemonic::MOV,    { { AddressingMethod::E, Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0xC7 */ { Mnemonic::MOV,    { { AddressingMethod::E, Size::v }, { AddressingMethod::I, Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0xC7 */ { Mnemonic::MOV,    { { AddressingMethod::E, Size::v }, { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ } } },
 
 /* 0xC8 */ { Mnemonic::ENTER,  { { AddressingMethod::I, Size::w }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0xC9 */ { Mnemonic::LEAVE,  { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
@@ -317,18 +319,18 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0xE2 */ { Mnemonic::LOOP,   { { AddressingMethod::J, Size::b }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0xE3 */ { Mnemonic::JECXZ,  { { AddressingMethod::J, Size::b }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0xE4 */ { Mnemonic::IN,     { { Register::A,         Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0xE5 */ { Mnemonic::IN,     { { Register::A,         Size::z }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
+/* 0xE5 */ { Mnemonic::IN,     { { Register::A,         Size::v }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0xE6 */ { Mnemonic::OUT,    { { Register::A,         Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0xE7 */ { Mnemonic::OUT,    { { Register::A,         Size::z }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
+/* 0xE7 */ { Mnemonic::OUT,    { { Register::A,         Size::v }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
 
-/* 0xE8 */ { Mnemonic::CALL,   { { AddressingMethod::J, Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0xE9 */ { Mnemonic::JMP,    { { AddressingMethod::J, Size::z }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0xE8 */ { Mnemonic::CALL,   { { AddressingMethod::J, Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0xE9 */ { Mnemonic::JMP,    { { AddressingMethod::J, Size::v }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0xEA */ { Mnemonic::JMP,    { { AddressingMethod::A, Size::p }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0xEB */ { Mnemonic::JMP,    { { AddressingMethod::J, Size::b }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /* 0xEC */ { Mnemonic::IN,     { { Register::A,         Size::b }, { Register::D,         Size::w }, { AddressingMethod::_, Size::_ } } },
-/* 0xED */ { Mnemonic::IN,     { { Register::A,         Size::z }, { Register::D,         Size::w }, { AddressingMethod::_, Size::_ } } },
+/* 0xED */ { Mnemonic::IN,     { { Register::A,         Size::v }, { Register::D,         Size::w }, { AddressingMethod::_, Size::_ } } },
 /* 0xEE */ { Mnemonic::OUT,    { { Register::D,         Size::w }, { Register::A,         Size::b }, { AddressingMethod::_, Size::_ } } },
-/* 0xEF */ { Mnemonic::OUT,    { { Register::D,         Size::w }, { Register::A,         Size::z }, { AddressingMethod::_, Size::_ } } },
+/* 0xEF */ { Mnemonic::OUT,    { { Register::D,         Size::w }, { Register::A,         Size::v }, { AddressingMethod::_, Size::_ } } },
 /****************************************************************************************************************************************/
 
 /****************************************************************************************************************************************/

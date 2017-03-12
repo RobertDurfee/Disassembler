@@ -10,6 +10,8 @@ struct SIBSchema
 	Base  base;
 };
 
+const SIBSchema EmptySIBSchema = { Scale::_, Index::_, Base::_ };
+
 const SIBSchema SIBSchemas[0x100 /* 00 000 000 - 11 111 111 */] = 
 {
 /*******************************************************/
