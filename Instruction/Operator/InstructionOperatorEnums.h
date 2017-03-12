@@ -278,10 +278,11 @@ enum class Prefix
 /* 0x40001 */ LAST               //Placeholder
 };
 
-Prefix& operator|=(const Prefix& left, const Prefix& right)
+Prefix& operator|=(Prefix& left, const Prefix& right)
 {
-	Prefix output = (Prefix)((int)left | (int)right); //Possible memory leak...
-	return output;
+	left = (Prefix)((int)left | (int)right);
+
+	return left;
 }
 
 #endif
