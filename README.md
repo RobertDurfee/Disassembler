@@ -88,7 +88,8 @@ This example takes a sample executable called "Test.exe" and loads the ".text" s
 ```
 Since the executable I selected in the above example went to a jump table, I just picked a random function in "Test.exe" to show as example output.
 ### Output Comparison
-```   0:   55                      push   ebp
+```
+   0:   55                      push   ebp
    1:   8b ec                   mov    ebp,esp
    3:   6a ff                   push   0xffffffff
    5:   68 50 78 43 00          push   0x437850
