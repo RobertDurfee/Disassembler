@@ -87,3 +87,45 @@ This example takes a sample executable called "Test.exe" and loads the ".text" s
 ...
 ```
 Since the executable I selected in the above example went to a jump table, I just picked a random function in "Test.exe" to show as example output.
+### Output Comparison
+```   0:   55                      push   ebp
+   1:   8b ec                   mov    ebp,esp
+   3:   6a ff                   push   0xffffffff
+   5:   68 50 78 43 00          push   0x437850
+   a:   64 a1 00 00 00 00       mov    eax,fs:0x0
+  10:   50                      push   eax
+  11:   81 ec cc 00 00 00       sub    esp,0xcc
+  17:   53                      push   ebx
+  18:   56                      push   esi
+  19:   57                      push   edi
+  1a:   51                      push   ecx
+  1b:   8d bd 28 ff ff ff       lea    edi,[ebp-0xd8]
+  21:   b9 33 00 00 00          mov    ecx,0x33
+  26:   b8 cc cc cc cc          mov    eax,0xcccccccc
+  2b:   f3 ab                   rep stos DWORD PTR es:[edi],eax
+  2d:   59                      pop    ecx
+  2e:   a1 30 45 44 00          mov    eax,ds:0x444530
+  33:   33 c5                   xor    eax,ebp
+  35:   50                      push   eax
+  36:   8d 45 f4                lea    eax,[ebp-0xc]
+  39:   64 a3 00 00 00 00       mov    fs:0x0,eax
+  3f:   89 4d ec                mov    DWORD PTR [ebp-0x14],ecx
+  42:   8b 4d ec                mov    ecx,DWORD PTR [ebp-0x14]
+  45:   e8 0c 50 ff ff          call   0xffff5056
+  4a:   8b 4d ec                mov    ecx,DWORD PTR [ebp-0x14]
+  4d:   e8 9a 5a ff ff          call   0xffff5aec
+  52:   8b 45 ec                mov    eax,DWORD PTR [ebp-0x14]
+  55:   8b 4d f4                mov    ecx,DWORD PTR [ebp-0xc]
+  58:   64 89 0d 00 00 00 00    mov    DWORD PTR fs:0x0,ecx
+  5f:   59                      pop    ecx
+  60:   5f                      pop    edi
+  61:   5e                      pop    esi
+  62:   5b                      pop    ebx
+  63:   81 c4 d8 00 00 00       add    esp,0xd8
+  69:   3b ec                   cmp    ebp,esp
+  6b:   e8 24 53 ff ff          call   0xffff5394
+  70:   8b e5                   mov    esp,ebp
+  72:   5d                      pop    ebp
+  73:   c3                      ret
+```
+Provided is the output from `objdump` to affirm legitimacy.
