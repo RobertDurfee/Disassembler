@@ -5,8 +5,12 @@ C++ class for disassembling Intel x86 assembly.
 ### Disclaimer
 This is not production-worthy code! View this simply as a proof-of-concept.
 
-### Note
-The `.hpp` versions of the classes utilize C++ structures such as std::vector, std::string, std::stringstream, and std::cout while the `.h` versions of the classes do not. These classes are substantially faster (approximately 12.3 times faster).
+### Speed Comparison
+The `.hpp` versions of the classes utilize C++ structures such as std::vector, std::string, std::stringstream, and std::cout while the `.h` versions of the classes do not. These classes are substantially faster:
+
+* Old Disassembler: 145.2145 seconds
+* C++ Disassembler: 174.4245 seconds
+* C   Disassembler:  13.3595 seconds
 
 ### Initialization
 ```C++
