@@ -3,11 +3,6 @@
 
 #include "Instruction\Instruction.h" //Instruction
 
-#include <vector>                    //std::vector
-#include <string>                    //std::string
-#include <sstream>                   //std::stringstream
-#include <iostream>                  //std::cout
-
 class Disassembler
 {
 public:
@@ -17,50 +12,27 @@ public:
 		this->length = length;
 	}
 
-	std::vector<Instruction> Instructions()
-	{
-		instructions.clear();
-
-		int index = 0;
-
-		while (index < length)
-			instructions.push_back(Instruction(opcodes, &index));
-
-		return instructions;
-	}
-	std::string String()
-	{
-		std::stringstream output;
-
-		instructions.clear();
-
-		int index = 0;
-		
-		while (index < length)
-		{
-			output << "0x" << std::setfill('0') << std::setw(8) << std::hex << std::uppercase << index << ": ";
-			instructions.push_back(Instruction(opcodes, &index));
-			output << instructions.back().GetString() << std::endl;
-		}
-
-		return output.str();
-	}
 	void Print()
 	{
-		instructions.clear();
-
 		int index = 0;
 
 		while (index < length)
 		{
-			std::cout << "0x" << std::setfill('0') << std::setw(8) << std::hex << std::uppercase << index << ": ";
-			instructions.push_back(Instruction(opcodes, &index));
-			std::cout << instructions.back().GetString() << std::endl;
+			char * inst = NULL;
+
+			Append(&inst, "0x%08X: ", index);
+			
+			Append(&inst, Instruction(opcodes, &index).GetString());
+
+			Append(&inst, "\n");
+
+			fwrite(inst, sizeof(char), strlen(inst), stdout);
+
+			free(inst);
 		}
 	}
 
 private:
-	std::vector<Instruction> instructions;
 	byte * opcodes;
 	int length;
 };

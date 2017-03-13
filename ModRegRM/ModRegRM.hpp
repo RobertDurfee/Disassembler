@@ -1,22 +1,16 @@
 #ifndef MOD_REG_RM_HEADER
 #define MOD_REG_RM_HEADER
 
-#define _CRT_SECURE_NO_WARNINGS
-
-#include "../DisassemblerTypes.h"                             //byte, word, dword, Peek<>(), Select<>()
+#include "../DisassemblerTypes.hpp"                           //byte, word, dword, Peek<>(), Select<>()
 
 #include "ModRegRMEnums.h"                                    //Mod, Reg, RM, Size
 #include "ModRegRMSchemas.h"                                  //ModRegRMSchema, ModRegRMSchemas
 #include "ModRegRMStrings.h"                                  //RegString, RMString
 
-#include "../SIB/SIB.h"                                       //SIB
+#include "../SIB/SIB.hpp"                                     //SIB
 
 #include "../Instruction/Operator/InstructionOperatorEnums.h" //Prefix
 #include "../Instruction/Operand/InstructionOperandStrings.h" //SegmentRegisterString
-
-#include <stdlib.h>                                           //malloc(), free()
-#include <stdio.h>                                            //sprintf()
-#include <string.h>                                           //strlen(), memcpy()
 
 class ModRegRM
 {
@@ -29,20 +23,14 @@ public:
 		this->prefixes = prefixes;
 
 		SetModRegRMSchema(opcode, index);
-
+		
 		if (HasSIB())
 			SetSIB(opcode, index);
 
 		if (HasDisp())
 			SetDisp(opcode, index);
 
-		SetValue(opcode, startingIndex, *index);
-	}
-
-	~ModRegRM()
-	{
-		delete sib;
-		free(value);
+		SetValue(opcode, &startingIndex, index);
 	}
 
 	bool HasAddressPrefix()
@@ -78,7 +66,7 @@ public:
 
 		return false;
 	}
-
+	
 	Size GetDispSize()
 	{
 		return dispSize;
@@ -118,57 +106,55 @@ public:
 	}
 	SIB GetSIBValue()
 	{
-		return *sib;
+		return sib;
 	}
 
-	char * GetModRMString(Size size) //free()
+	std::string GetModRMString(Size size)
 	{
-		char * output = NULL;
+		std::stringstream output;
 
 		switch (schema.mod)
 		{
 			case Mod::NoDisp:
-				Append(&output, GetSizeString(size));
+				output << GetSizeString(size);
 
 				if (HasSegmentPrefix())
-					Append(&output, GetSegmentPrefixString());
+					output << GetSegmentPrefixString();
 
-				Append(&output, "[");
+				output << "[";
 
 				if (HasRMDisp())
-					Append(&output, GetDispString());
+					output << GetDispString();
 				else if (HasSIB())
-					Append(&output, sib->GetString());
+					output << sib.GetString();
 				else
-					Append(&output, GetRMAddressString());
+					output << GetRMAddressString();
 
-				Append(&output, "]");
+				output << "]";
 				break;
 			case Mod::Disp:
-				Append(&output, GetSizeString(size));
+				output << GetSizeString(size);
 
 				if (HasSegmentPrefix())
-					Append(&output, GetSegmentPrefixString());
+					output << GetSegmentPrefixString();
 
-				Append(&output, "[");
+				output << "[";
 
 				if (HasSIB())
-					Append(&output, sib->GetString());
+					output << sib.GetString();
 				else
-					Append(&output, GetRMAddressString());
+					output << GetRMAddressString();
 
-				Append(&output, " + ");
-				Append(&output, GetDispString());
-				Append(&output, "]");
+				output << " + " << GetDispString() << "]";
 				break;
 			case Mod::Reg:
-				Append(&output, GetRMRegString(size));
+				output << GetRMRegString(size);
 				break;
 		}
 
-		return output;
+		return output.str();
 	}
-	const char * GetSizeString(Size size)
+	std::string GetSizeString(Size size)
 	{
 		switch (size)
 		{
@@ -197,7 +183,7 @@ public:
 				return "";
 		}
 	}
-	const char * GetRegString(Size size, bool segment = false)
+	std::string GetRegString(Size size, bool segment = false)
 	{
 		if (!segment)
 			switch (size)
@@ -217,55 +203,64 @@ public:
 		else if (segment)
 			return SegmentRegisterString[(int)schema.reg - (int)Reg::A];
 	}
-	const char * GetRMAddressString()
+	std::string GetRMAddressString()
 	{
+		std::stringstream output;
+		
 		if (HasAddressPrefix())
-			return RMString[SIXTEEN_BIT((int)schema.rm16 - (int)RM::A)];
+			output << RMString[SIXTEEN_BIT ((int)schema.rm16 - (int)RM::A)];
 		else if (!HasAddressPrefix())
-			return RMString[THIRTYTWO_BIT((int)schema.rm - (int)RM::A)];
+			output << RMString[THIRTYTWO_BIT ((int)schema.rm - (int)RM::A)];
+
+		return output.str();
 	}
-	const char * GetRMRegString(Size size)
+	std::string GetRMRegString(Size size)
 	{
+		std::stringstream output;
+
 		switch (size)
 		{
 			case Size::b:
-				return RegString[EIGHT_BIT((int)schema.rm - (int)RM::A)];
+				output << RegString[EIGHT_BIT ((int)schema.rm - (int)RM::A)];
+				break;
 			case Size::w:
-				return RegString[SIXTEEN_BIT((int)schema.rm - (int)RM::A)];
+				output << RegString[SIXTEEN_BIT ((int)schema.rm - (int)RM::A)];
+				break;
 			case Size::d:
-				return RegString[THIRTYTWO_BIT((int)schema.rm - (int)RM::A)];
+				output << RegString[THIRTYTWO_BIT ((int)schema.rm - (int)RM::A)];
+				break;
 			case Size::v:
 				if (HasOperandPrefix())
-					return RegString[SIXTEEN_BIT((int)schema.rm - (int)RM::A)];
+					output << RegString[SIXTEEN_BIT ((int)schema.rm - (int)RM::A)];
 				else if (!HasOperandPrefix())
-					return RegString[THIRTYTWO_BIT((int)schema.rm - (int)RM::A)];
-			default:
-				return "ERROR";
+					output << RegString[THIRTYTWO_BIT ((int)schema.rm - (int)RM::A)];
+				break;
 		}
+
+		return output.str();
 	}
-	char * GetDispString() //free()
+	std::string GetDispString()
 	{
-		char * output = NULL;
+		std::stringstream output;
 
 		switch (dispSize)
 		{
 			case Size::b:
-				output = (char *)malloc(4 * sizeof(char));
-				sprintf(output, "%02Xh", disp8);
+				output << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << (int)disp8;
 				break;
 			case Size::w:
-				output = (char *)malloc(6 * sizeof(char));
-				sprintf(output, "%04Xh", disp16);
+				output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16;
 				break;
 			case Size::d:
-				output = (char *)malloc(10 * sizeof(char));
-				sprintf(output, "%08Xh", disp32);
+				output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32;
 				break;
 		}
 
-		return output;
+		output << "h";
+
+		return output.str();
 	}
-	const char * GetSegmentPrefixString()
+	std::string GetSegmentPrefixString()
 	{
 		if ((int)prefixes & (int)Prefix::ES)
 			return "ES:";
@@ -285,8 +280,8 @@ public:
 
 private:
 	ModRegRMSchema schema = EmptyModRegRMSchema; //Contains the ModRegRM configuration for the opcode
-	byte * value = NULL;                         //Contains the ModRegRM opcodes
-	SIB * sib = NULL;                            //Optional scale index base byte
+	std::vector<byte> value;                     //Contains the ModRegRM opcodes
+	SIB sib;                                     //Optional scale index base byte
 	union                                        //Optional displacement
 	{
 		byte disp8;                              //8-bit version
@@ -302,7 +297,7 @@ private:
 	}
 	void SetSIB(byte * opcode, int * index)
 	{
-		sib = new SIB(opcode, index, schema.mod);
+		sib = SIB(opcode, index, schema.mod);
 	}
 	void SetDisp(byte * opcode, int * index)
 	{
@@ -357,11 +352,10 @@ private:
 		}
 	}
 
-	void SetValue(byte * opcode, int startingIndex, int endingIndex)
+	void SetValue(byte * opcode, int * startingIndex, int * endingIndex)
 	{
-		value = (byte *)malloc(endingIndex - startingIndex);
-
-		memcpy(value, &opcode[startingIndex], endingIndex - startingIndex);
+		while (*startingIndex != *endingIndex)
+			value.push_back(Select<byte>(opcode, startingIndex));
 	}
 };
 

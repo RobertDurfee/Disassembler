@@ -50,7 +50,7 @@ const InstructionSchema InstructionSchemas[0x100 /* 0x00 - 0xFF */] =
 /* 0x0C */ { Mnemonic::OR,     { { Register::A,         Size::b }, { AddressingMethod::I, Size::b }, { AddressingMethod::_, Size::_ } } },
 /* 0x0D */ { Mnemonic::OR,     { { Register::A,         Size::v }, { AddressingMethod::I, Size::v }, { AddressingMethod::_, Size::_ } } },
 /* 0x0E */ { Mnemonic::PUSH,   { { SegmentRegister::CS, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
-/* 0x0F */ { Group::TwoByte,   { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
+/* 0x0F */ { Mnemonic::_,      { { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ }, { AddressingMethod::_, Size::_ } } },
 /****************************************************************************************************************************************/
 
 /****************************************************************************************************************************************/

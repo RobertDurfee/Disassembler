@@ -24,7 +24,7 @@ const char * RegisterString[24] =
   /* 0x15 */ "BH",      /* 0x16 */ "DI",       /* 0x17 */ "EDI",
 };
 
-const char * SegmentRegisterString[18] =
+const char * SegmentRegisterString[24] =
 {
 /* Segment Registers */
 	
@@ -33,7 +33,9 @@ const char * SegmentRegisterString[18] =
   /* 0x06 */ "SS",      /* 0x07 */ "SS",       /* 0x08 */ "SS",
   /* 0x09 */ "DS",      /* 0x0A */ "DS",       /* 0x0B */ "DS",
   /* 0x0C */ "FS",      /* 0x0D */ "FS",       /* 0x0E */ "FS",
-  /* 0x0F */ "GS",      /* 0x10 */ "GS",       /* 0x11 */ "GS"
+  /* 0x0F */ "GS",      /* 0x10 */ "GS",       /* 0x11 */ "GS",
+  /* 0x12 */ "??",      /* 0x13 */ "??",       /* 0x14 */ "??",
+  /* 0x15 */ "??",      /* 0x16 */ "??",       /* 0x17 */ "??"
 };
 
 const char * ConstantString[1] = 

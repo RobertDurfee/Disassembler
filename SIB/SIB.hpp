@@ -1,9 +1,7 @@
 #ifndef SIB_HEADER
 #define SIB_HEADER
 
-#define _CRT_SECURE_NO_WARNINGS
-
-#include "../DisassemblerTypes.h"      //byte, word, dword, Peek<>(), Select<>()
+#include "../DisassemblerTypes.hpp"    //byte, word, dword, Peek<>(), Select<>()
 
 #include "SIBEnums.h"                  //Scale, Index, Base
 #include "SIBSchemas.h"                //SIBSchema, SIBSchemas
@@ -11,9 +9,10 @@
 
 #include "../ModRegRM/ModRegRMEnums.h" //Mod
 
-#include <stdlib.h>                    //malloc(), free()
-#include <stdio.h>                     //sprintf()
-#include <string.h>                    //strlen(), memcpy()
+#include <sstream>                     //stringstream, hex
+#include <iomanip>                     //setfill(), setw()
+
+#include <vector>                      //std::vector
 
 class SIB
 {
@@ -22,7 +21,7 @@ public:
 	SIB(byte * opcode, int * index, Mod mod)
 	{
 		int startingIndex = *index;
-
+		
 		SetSIBSchema(opcode, index);
 
 		hasDisp = (mod == Mod::NoDisp) && (schema.base == Base::EBP);
@@ -30,12 +29,7 @@ public:
 		if (HasDisp())
 			SetDisp(opcode, index);
 
-		SetValue(opcode, startingIndex, *index);
-	}
-
-	~SIB()
-	{
-		free(value);
+		SetValue(opcode, &startingIndex, index);
 	}
 
 	bool HasIndex()
@@ -72,54 +66,46 @@ public:
 		return disp32;
 	}
 
-	const char * GetScaleString()
+	std::string GetScaleString()
 	{
 		return ScaleString[(int)schema.scale];
 	}
-	const char * GetIndexString()
+	std::string GetIndexString()
 	{
 		return IndexString[(int)schema.index];
 	}
-	const char * GetBaseString()
+	std::string GetBaseString()
 	{
 		return BaseString[(int)schema.base];
 	}
-	char * GetDispString() //free()
+	std::string GetDispString()
 	{
-		char * output = (char *)malloc(10 * sizeof(char));
-
-		sprintf(output, "%08Xh", disp32);
-
-		return output;
+		std::stringstream output;
+		output << std::setfill('0') << std::setw(8) << std::hex << disp32 << "h";
+		return output.str();
 	}
 
-	char * GetString() //free()
+	std::string GetString()
 	{
-		char * output = NULL;
-		
+		std::stringstream output;
+
 		if (HasDisp())
-			Append(&output, GetDispString());
+			output << GetDispString();
 		else if (HasBase())
-			Append(&output, GetBaseString());
+			output << GetBaseString();
 
 		if (HasIndex())
-		{
-			Append(&output, " + ");
-			Append(&output, GetIndexString());
-		}
+			output << " + " << GetIndexString();
 
 		if (HasScale())
-		{
-			Append(&output, " * ");
-			Append(&output, GetScaleString());
-		}
+			output << " * " << GetScaleString();
 
-		return output;
+		return output.str();
 	}
 
 private:
 	SIBSchema schema = EmptySIBSchema; //Contains SIB configuration for the opcode
-	byte * value = NULL;               //Contains the SIB opcodes
+	std::vector<byte> value;           //Contains the SIB opcodes
 	dword disp32 = 0;                  //Only used if there is a 32-bit displacement
 	bool hasDisp = false;              //Seperate value used to prevent write-access outside of class
 
@@ -132,11 +118,10 @@ private:
 		disp32 = Select<dword>(opcode, index);
 	}
 
-	void SetValue(byte * opcode, int startingIndex, int endingIndex)
+	void SetValue(byte * opcode, int * startingIndex, int * endingIndex)
 	{
-		value = (byte *)malloc(endingIndex - startingIndex);
-
-		memcpy(value, &opcode[startingIndex], endingIndex - startingIndex);
+		while (*startingIndex != *endingIndex)
+			value.push_back(Select<byte>(opcode, startingIndex));
 	}
 };
 

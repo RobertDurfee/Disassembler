@@ -1,13 +1,13 @@
 #ifndef INSTRUCTION_HEADER
 #define INSTRUCTION_HEADER
 
-#define _CRT_SECURE_NO_WARNINGS
-
-#include "../DisassemblerTypes.h"   //byte, word, dword
+#include "../DisassemblerTypes.hpp" //byte, word, dword
 
 #include "InstructionSchemas.h"     //InstructionSchema, InstructionSchemas
 
-#include "../ModRegRM/ModRegRM.h" //ModRegRM
+#include "../ModRegRM/ModRegRM.hpp" //ModRegRM
+
+#include <vector>                   //std::vector
 
 class Instruction
 {
@@ -37,12 +37,7 @@ public:
 				SetDirectAddress(operand, opcode, index);
 		}
 
-		SetValue(opcode, startingIndex, *index);
-	}
-	~Instruction()
-	{
-		delete modregrm;
-		free(value);
+		SetValue(opcode, &startingIndex, index);
 	}
 
 	bool HasPrefix()
@@ -131,165 +126,173 @@ public:
 	{
 		return (Constant::ONE <= schema.operands[operand].constant) && (schema.operands[operand].constant <= Constant::ONE);
 	}
-
-	char * GetModRMString(int operand) //free()
+	
+	std::string GetModRMString(int operand)
 	{
-		return modregrm->GetModRMString(schema.operands[operand].operandSize);
+		return modregrm.GetModRMString(schema.operands[operand].operandSize);
 	}
-	const char * GetGeneralRegisterString(int operand)
+	std::string GetGeneralRegisterString(int operand)
 	{
-		return modregrm->GetRegString(schema.operands[operand].operandSize);
+		return modregrm.GetRegString(schema.operands[operand].operandSize);
 	}
-	const char * GetSegmentRegisterString(int operand)
+	std::string GetSegmentRegisterString(int operand)
 	{
-		return modregrm->GetRegString(schema.operands[operand].operandSize, true);
+		return modregrm.GetRegString(schema.operands[operand].operandSize, true);
 	}
-	char * GetImmediateString(int operand) //free()
+	std::string GetImmediateString(int operand)
 	{
-		char * output = NULL;
-
-		switch (schema.operands[operand].operandSize)
-		{
-			case Size::b:
-				Append(&output, "%02Xh", imm8);
-				break;
-			case Size::w:
-				Append(&output, "%04Xh", imm16);
-				break;
-			case Size::d:
-				Append(&output, "%08Xh", imm32);
-				break;
-			case Size::v:
-				if (HasOperandPrefix()) 
-					Append(&output, "%04Xh", imm16);
-				else if (!HasOperandPrefix())
-					Append(&output, "%08Xh", imm32);
-				break;
-		}
-
-		return output;
-	}
-	char * GetRelativeDisplacementString(int operand) //free()
-	{
-		char * output = NULL;
+		std::stringstream output;
 
 		switch (schema.operands[operand].operandSize)
 		{
 			case Size::b:
-				Append(&output, "%02Xh", disp8);
+				output << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << (int)imm8;
 				break;
 			case Size::w:
-				Append(&output, "%04Xh", disp16);
+				output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << imm16;
 				break;
 			case Size::d:
-				Append(&output, "%08Xh", disp32);
+				output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << imm32;
 				break;
 			case Size::v:
 				if (HasOperandPrefix())
-					Append(&output, "%04Xh", disp16);
+					output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << imm16;
 				else if (!HasOperandPrefix())
-					Append(&output, "%08Xh", disp32);
+					output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << imm32;
 				break;
 		}
 
-		return output;
+		output << "h";
+
+		return output.str();
 	}
-	char * GetMemoryDisplacementString(int operand) //free()
+	std::string GetRelativeDisplacementString(int operand)
 	{
-		char * output = NULL;
+		std::stringstream output;
+
+		switch (schema.operands[operand].operandSize)
+		{
+			case Size::b:
+				output << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << (int)disp8;
+				break;
+			case Size::w:
+				output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16;
+				break;
+			case Size::d:
+				output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32;
+				break;
+			case Size::v:
+				if (HasOperandPrefix())
+					output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16;
+				else if (!HasOperandPrefix())
+					output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32;
+				break;
+		}
+
+		output << "h";
+
+		return output.str();
+	}
+	std::string GetMemoryDisplacementString(int operand)
+	{
+		std::stringstream output;
 
 		if (HasSegmentPrefix())
-			Append(&output, GetSegmentPrefixString());
+			output << GetSegmentPrefixString();
 		else if (!HasSegmentPrefix())
-			Append(&output, "DS:");
+			output << "DS:";
 
 		if (HasAddressPrefix())
-			Append(&output, "%04Xh", disp16);
+			output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << disp16;
 		else if (!HasAddressPrefix())
-			Append(&output, "%08Xh", disp32);
+			output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << disp32;
 
-		return output;
+		output << "h";
+
+		return output.str();
 	}
-	char * GetDirectAddressString(int operand) //free()
+	std::string GetDirectAddressString(int operand)
 	{
-		char * output = NULL;
+		std::stringstream output;
 
-		Append(&output, GetSizeString(schema.operands[operand].operandSize));
-
-		Append(&output, "%04Xh:", sel16);
+		output << GetSizeString(schema.operands[operand].operandSize);
+		
+		output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << sel16 << "h:";
 
 		if (HasOperandPrefix())
-			Append(&output, "%04Xh", addr16);
+			output << std::setfill('0') << std::setw(4) << std::uppercase << std::hex << addr16;
 		else if (!HasOperandPrefix())
-			Append(&output, "%08Xh", addr32);
-		
-		return output;
-	}
-	char * GetFixedAddressString(int operand) //free()
-	{
-		char * output = NULL;
+			output << std::setfill('0') << std::setw(8) << std::uppercase << std::hex << addr32;
 
-		Append(&output, GetSizeString(schema.operands[operand].operandSize));
+		output << "h";
+
+		return output.str();
+	}
+	std::string GetFixedAddressString(int operand)
+	{
+		std::stringstream output;
+
+		output << GetSizeString(schema.operands[operand].operandSize);
 
 		switch (schema.operands[operand].addressingMethod)
 		{
 			case AddressingMethod::X:
 				if (HasSegmentPrefix())
 				{
-					Append(&output, GetSegmentPrefixString());
+					output << GetSegmentPrefixString();
 					if (HasOperandPrefix())
-						Append(&output, "[SI]");
+						output << "[SI]";
 					else if (!HasOperandPrefix())
-						Append(&output, "[ESI]");
+						output << "[ESI]";
 				}
 				else if (!HasSegmentPrefix())
 				{
 					if (HasOperandPrefix())
-						Append(&output, "DS:[SI]");
+						output << "DS:[SI]";
 					else if (!HasOperandPrefix())
-						Append(&output, "DS:[ESI]");
+						output << "DS:[ESI]";
 				}
 				break;
 			case AddressingMethod::Y:
 				if (HasOperandPrefix())
-					Append(&output, "ES:[DI]");
+					output << "ES:[DI]";
 				else if (!HasOperandPrefix())
-					Append(&output, "ES:[EDI]");
+					output << "ES:[EDI]";
 				break;
 		}
 
-		return output;
+		return output.str();
 	}
-	const char * GetFixedGeneralRegisterString(int operand)
+	std::string GetFixedGeneralRegisterString(int operand)
 	{
 		switch (schema.operands[operand].operandSize)
 		{
 			case Size::b:
-				return RegisterString[EIGHT_BIT((int)schema.operands[operand].register_ - (int)Register::A)];
+				return RegisterString[EIGHT_BIT ((int)schema.operands[operand].register_ - (int)Register::A)];
 				break;
 			case Size::w:
-				return RegisterString[SIXTEEN_BIT((int)schema.operands[operand].register_ - (int)Register::A)];
+				return RegisterString[SIXTEEN_BIT ((int)schema.operands[operand].register_ - (int)Register::A)];
 				break;
 			case Size::d:
-				return RegisterString[THIRTYTWO_BIT((int)schema.operands[operand].register_ - (int)Register::A)];
+				return RegisterString[THIRTYTWO_BIT ((int)schema.operands[operand].register_ - (int)Register::A)];
 				break;
 			case Size::v:
 				if (HasOperandPrefix())
-					return RegisterString[SIXTEEN_BIT((int)schema.operands[operand].register_ - (int)Register::A)];
+					return RegisterString[SIXTEEN_BIT ((int)schema.operands[operand].register_ - (int)Register::A)];
 				else if (!HasOperandPrefix())
-					return RegisterString[THIRTYTWO_BIT((int)schema.operands[operand].register_ - (int)Register::A)];
+					return RegisterString[THIRTYTWO_BIT ((int)schema.operands[operand].register_ - (int)Register::A)];
 				break;
 		}
 	}
-	const char * GetFixedSegmentRegisterString(int operand)
+	std::string GetFixedSegmentRegisterString(int operand)
 	{
 		return SegmentRegisterString[(int)schema.operands[operand].segmentRegister - (int)SegmentRegister::ES];
 	}
-	const char * GetFixedConstantString(int operand)
+	std::string GetFixedConstantString(int operand)
 	{
 		return ConstantString[(int)schema.operands[operand].constant - (int)Constant::ONE];
 	}
-	const char * GetSegmentPrefixString()
+	std::string GetSegmentPrefixString()
 	{
 		if ((int)prefixes & (int)Prefix::ES)
 			return "ES:";
@@ -306,113 +309,69 @@ public:
 
 		return "";
 	}
-	const char * GetOperatorString()
+	std::string GetOperatorString()
 	{
 		return MnemonicString[(int)schema.operator_.mnemonic];
 	}
-	char * GetOperandString(int operand, bool * allocated)
+	std::string GetOperandString(int operand)
 	{
 		if (IsModRM(operand))
-		{
-			*allocated = true;
 			return GetModRMString(operand);
-		}
 
 		else if (IsGeneralRegister(operand))
-		{
-			*allocated = false;
-			return (char *)GetGeneralRegisterString(operand);
-		}
+			return GetGeneralRegisterString(operand);
 
 		else if (IsSegmentRegister(operand))
-		{
-			*allocated = false;
-			return (char *)GetSegmentRegisterString(operand);
-		}
+			return GetSegmentRegisterString(operand);
 
 		else if (IsImmediate(operand))
-		{
-			*allocated = true;
 			return GetImmediateString(operand);
-		}
 
 		else if (IsRelativeDisplacement(operand))
-		{
-			*allocated = true;
 			return GetRelativeDisplacementString(operand);
-		}
 
 		else if (IsMemoryDisplacement(operand))
-		{
-			*allocated = true;
 			return GetMemoryDisplacementString(operand);
-		}
 
 		else if (IsDirectAddress(operand))
-		{
-			*allocated = true;
 			return GetDirectAddressString(operand);
-		}
 
 		else if (IsFixedAddress(operand))
-		{
-			*allocated = true;
 			return GetFixedAddressString(operand);
-		}
 
 		else if (IsFixedGeneralRegister(operand))
-		{
-			*allocated = false;
-			return (char *)GetFixedGeneralRegisterString(operand);
-		}
+			return GetFixedGeneralRegisterString(operand);
 
 		else if (IsFixedSegmentRegister(operand))
-		{
-			*allocated = false;
-			return (char *)GetFixedSegmentRegisterString(operand);
-		}
+			return GetFixedSegmentRegisterString(operand);
 
 		else if (IsFixedConstant(operand))
-		{
-			*allocated = false;
-			return (char *)GetFixedConstantString(operand);
-		}
+			return GetFixedConstantString(operand);
 	}
-	char * GetOperandsString() //free()
+	std::string GetOperandsString()
 	{
-		char * output = NULL;
+		std::stringstream output;
 
 		int operand = 0;
 
 		while (schema.operands[operand].addressingMethod != AddressingMethod::_ && operand < NUMBER_OF_OPERANDS)
-		{
-			bool allocated;
-			char * operandString = GetOperandString(operand++, &allocated);
-			Append(&output, (const char *)operandString);
-			if (allocated)
-				free(operandString);
-			Append(&output, ", ");
-		}
+			output << GetOperandString(operand++) << ", ";
 
-		RemoveLast(&output, 2);
-
-		return output;
+		return output.str().substr(0, output.str().length() - 2);
 	}
-	char * GetValueString()
+	std::string GetValueString()
 	{
-		char * output = NULL;
+		std::stringstream output;
 
-		for (int i = 0; i < valueSize && i < 8; i++)
+		for (int i = 0; i < (int)value.size() && i < 8; i++)
 			if (i < 7)
-				Append(&output, "%02X ", value[i]);
+				output << std::setfill('0') << std::setw(2) << std::uppercase << std::hex << (int)value[i] << " ";
 			else
-				Append(&output, "+ ");
+				output << "+ ";
 
-		RemoveLast(&output, 1);
-
-		return output;
+		return output.str().substr(0, output.str().length() - 1);
 	}
-	const char * GetSizeString(Size size)
+	std::string GetSizeString(Size size)
 	{
 		switch (size)
 		{
@@ -436,31 +395,30 @@ public:
 				return "";
 		}
 	}
-	char * GetString() //free()
+	std::string GetString()
 	{
-		char * output = NULL;
+		std::stringstream output;
 
-		Append(&output, "%- 23s ", GetValueString());
-		
+		output << std::setw(23) << std::left << GetValueString() << " ";
+
 		if (!error)
 		{
-			Append(&output, "%- 6s ", GetOperatorString());
+			output << std::setw(6) << std::left << GetOperatorString() << " ";
 
-			Append(&output, GetOperandsString());
+			output << GetOperandsString();
 		}
 		else
-			Append(&output, "ERROR");
+			output << "ERROR";
 
-		return output;
+		return output.str();
 	}
 
 private:
 	InstructionSchema schema = EmptyInstructionSchema; //Contains the Instruction configuration for the opcode
-	ModRegRM * modregrm = NULL;                        //Optional ModRegRM byte
+	ModRegRM modregrm;                                 //Optional ModRegRM byte
 	bool hasModregrm = false;                          //Flag that remembers if the ModRegRM byte has been set
 	Prefix prefixes = Prefix::_;                       //Optional instruction prefixes
-	byte * value = NULL;                               //Contains the Instruction opcodes
-	int valueSize = 0;                                 //Number of value bytes 
+	std::vector<byte> value;                           //Contains the Instruction opcodes
 	bool hasGroup = false;                             //Flag that remembers if instruction belongs to a group
 	bool error = false;                                //If there was an unexpected value
 	union                                              //Optional immediate(s)
@@ -506,11 +464,11 @@ private:
 
 		if (schema.operator_.mnemonic == Mnemonic::_)
 			error = true;
-	}
+	} 
 	void SetGroupSchema()
 	{
 		hasGroup = true;
-		schema |= GroupSchemas[(int)schema.operator_.group - (int)Group::Immediate][modregrm->GetOpcodeExtensionValue()];
+		schema |= GroupSchemas[(int)schema.operator_.group - (int)Group::Immediate][modregrm.GetOpcodeExtensionValue()];
 	}
 	void SetPrefix()
 	{
@@ -519,40 +477,40 @@ private:
 	void SetModRegRM(byte * opcode, int * index)
 	{
 		hasModregrm = true;
-		modregrm = new ModRegRM(opcode, index, (Prefix)prefixes);
+		modregrm = ModRegRM(opcode, index, (Prefix)prefixes);
 	}
 
 	void SetImmediate(int operand, byte * opcode, int * index)
 	{
 		switch (schema.operands[operand].operandSize)
 		{
-			case Size::b:
-				imm8 = Select<byte>(opcode, index);
-				break;
-			case Size::w:
+		case Size::b:
+			imm8 = Select<byte>(opcode, index);
+			break;
+		case Size::w:
+			imm16 = Select<word>(opcode, index);
+			break;
+		case Size::v:
+			if (HasOperandPrefix())
 				imm16 = Select<word>(opcode, index);
-				break;
-			case Size::v:
-				if (HasOperandPrefix())
-					imm16 = Select<word>(opcode, index);
-				else if (!HasOperandPrefix())
-					imm32 = Select<dword>(opcode, index);
-				break;
+			else if (!HasOperandPrefix())
+				imm32 = Select<dword>(opcode, index);
+			break;
 		}
 	}
 	void SetRelativeDisplacement(int operand, byte * opcode, int * index)
 	{
 		switch (schema.operands[operand].operandSize)
 		{
-			case Size::b:
-				disp8 = Select<byte>(opcode, index);
-				break;
-			case Size::v:
-				if (HasOperandPrefix())
-					disp16 = Select<word>(opcode, index);
-				else if (!HasOperandPrefix())
-					disp32 = Select<dword>(opcode, index);
-				break;
+		case Size::b:
+			disp8 = Select<byte>(opcode, index);
+			break;
+		case Size::v:
+			if (HasOperandPrefix())
+				disp16 = Select<word>(opcode, index);
+			else if (!HasOperandPrefix())
+				disp32 = Select<dword>(opcode, index);
+			break;
 		}
 
 		disp32 += *index;
@@ -574,12 +532,10 @@ private:
 		sel16 = Select<word>(opcode, index);
 	}
 
-	void SetValue(byte * opcode, int startingIndex, int endingIndex)
+	void SetValue(byte * opcode, int * startingIndex, int * endingIndex)
 	{
-		valueSize = endingIndex - startingIndex;
-		value = (byte *)malloc(valueSize);
-
-		memcpy(value, &opcode[startingIndex], endingIndex - startingIndex);
+		while (*startingIndex != *endingIndex)
+			value.push_back(Select<byte>(opcode, startingIndex));
 	}
 };
 
