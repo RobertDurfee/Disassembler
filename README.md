@@ -169,4 +169,4 @@ Since the executable I selected in the above example went to a jump table, I jus
       d6:   5d                      pop    ebp
       d7:   c2 08 00                ret    0x8
 ```
-Provided is the output from `objdump` to affirm legitimacy.
+Provided is the output from `objdump` to affirm legitimacy. Additionally, it is worth mentioning that my disassembler was only 10% slower than `objdump` when disassembling the same file.
