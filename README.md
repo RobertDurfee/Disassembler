@@ -13,9 +13,21 @@ Disassembler(byte * opcodes, int length);
 ```
 A `Disassembler` can be initialized by including the buffer of opcodes and the length of the buffer. The buffer is not copied into the object.
 
+### Instructions
+```C++
+Instruction ** Instructions(int * numberOfInstructions);
+```
+This method converts the opcode buffer to Intel x86 Assembly language where each instruction is a element of an array of instructions. The number of instructions to output is specified through `numberOfInstructions`. If this number is `-1`, all instructions are output and after the method finishes executing, the number of instructions output is in `numberOfInstructions`. If this number is greater than the number of instructions, the `numberOfInstructions` will contain the actual number of instructions output.
+
+### Strings
+```C++
+char ** Strings(int * numberOfLines);
+```
+This method converts the opcode buffer to Intel x86 Assembly language where each line is a element of an array of character pointers. The number of lines to output is specified through `numberOfLines`. If this number is `-1`, all lines are output and after the method finishes executing, the number of lines output is in `numberOfLines`. If this number is greater than the number of lines of instructions, the `numberOfLines` will contain the actual number of lines output. (The output is not a simple string as the time to execute would grow exponentially which is unrealistic. This output should be just as easy to process.)
+
 ### Print
 ```C++
-void Print()
+void Print();
 ```
 This method converts the opcode buffer to Intel x86 Assembly language and prints it to the standard output stream.
 
