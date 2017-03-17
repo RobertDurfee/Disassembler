@@ -83,8 +83,6 @@ char ** Disassembler::Strings(int * numberOfLines)
 		Append(&output[*numberOfLines - 1], "0x%08X: ", index);
 
 		Append(&output[*numberOfLines - 1], Instruction(opcodes, &index).GetString());
-
-		Append(&output[*numberOfLines - 1], "\n");
 	}
 
 	return output;
