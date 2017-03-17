@@ -15,7 +15,7 @@
 
 class Operand
 {
-	friend class ModRegRM; //Needs: opcode, index, schema.operandSize
+	friend class ModRegRM; //Needs: opcode, index, schema.operandSize, GetSizeString()
 
 public:
 	Operand() {};

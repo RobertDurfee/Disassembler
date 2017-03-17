@@ -11,7 +11,7 @@
 
 template<typename T>
 //Returns a value of type byte, word, or dword from a byte array at 'index' advancing 'index' depending on the size of the value read.
-T Select(byte * source, int * index)
+inline T Select(byte * source, int * index)
 {
 	int i = *index;
 
@@ -21,7 +21,7 @@ T Select(byte * source, int * index)
 }
 
 //'back' must have been allocated using malloc()
-void Append(char ** front, char * back)
+inline void Append(char ** front, char * back)
 {
 	int frontLength = (*front == nullptr) ? 0 : strlen(*front);
 	int backLength = (back == nullptr) ? 0 : strlen(back);
@@ -41,7 +41,7 @@ void Append(char ** front, char * back)
 	*front = output;
 }
 //Same as above except 'back' is not allocated using malloc()
-void Append(char ** front, const char * back)
+inline void Append(char ** front, const char * back)
 {
 	int frontLength = (*front == nullptr) ? 0 : strlen(*front);
 	int backLength = (back == nullptr) ? 0 : strlen(back);
@@ -59,7 +59,7 @@ void Append(char ** front, const char * back)
 
 	*front = output;
 }
-void Append(char ** front, char * format, dword back)
+inline void Append(char ** front, char * format, dword back)
 {
 	int frontLength = (*front == nullptr) ? 0 : strlen(*front);
 	int backLength = snprintf(nullptr, 0, format, back);
@@ -75,7 +75,7 @@ void Append(char ** front, char * format, dword back)
 	*front = output;
 }
 //'back' must have been allocated using malloc()
-void Append(char ** front, char * format, char * back)
+inline void Append(char ** front, char * format, char * back)
 {
 	int frontLength = (*front == nullptr) ? 0 : strlen(*front);
 	int backLength = snprintf(nullptr, 0, format, back);
@@ -92,7 +92,7 @@ void Append(char ** front, char * format, char * back)
 	*front = output;
 }
 //Same as above except 'back' is not allocated using malloc()
-void Append(char ** front, char * format, const char * back)
+inline void Append(char ** front, char * format, const char * back)
 {
 	int frontLength;
 	if (*front != nullptr)
@@ -114,7 +114,7 @@ void Append(char ** front, char * format, const char * back)
 }
 
 //Output must be freed by calling free()
-void RemoveLast(char ** string, int count)
+inline void RemoveLast(char ** string, int count)
 {
 	if (*string != nullptr)
 	{

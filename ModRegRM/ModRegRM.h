@@ -33,7 +33,7 @@ private:
 	byte * opcode = nullptr;
 	int * index = nullptr;
 
-	//Caller
+	//Callers
 	Instruction * instruction = nullptr;
 	Operand * operand = nullptr;
 	Size size = Size::_;
@@ -364,7 +364,32 @@ const char * ModRegRM::GetSegmentRegisterString()
 }
 const char * ModRegRM::GetSizeString()
 {
-	return operand->GetSizeString();
+	switch (size)
+	{
+		case Size::b:
+			return "BYTE PTR ";
+		case Size::w:
+			return "WORD PTR ";
+		case Size::d:
+			return "DWORD PTR ";
+		case Size::v:
+			if (HasOperandPrefix())
+				return "WORD PTR ";
+			else
+				return "DWORD PTR ";
+		case Size::a:
+			if (HasOperandPrefix())
+				return "DWORD PTR ";
+			else
+				return "QWORD PTR ";
+		case Size::p:
+			if (HasOperandPrefix())
+				return "FWORD PTR ";
+			else
+				return "DWORD PTR ";
+		default:
+			return "";
+	}
 }
 
 #endif

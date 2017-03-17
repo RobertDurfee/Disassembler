@@ -7,7 +7,6 @@
 #include "InstructionSchemas.h"        //InstructionSchema, EmptyInstructionSchema, InstructionSchemas, GroupSchemas, NUMBER_OF_OPERANDS
 
 #include "../Operator/OperatorEnums.h" //Prefix, Group
-
 #include "../Operand/OperandEnums.h"   //AddressingMethod
 
 #include <stdlib.h>                    //malloc(), free()

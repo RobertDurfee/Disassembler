@@ -29,7 +29,10 @@ Operator::Operator(Instruction * instruction) : instruction(instruction)
 
 const char * Operator::GetString()
 {
-	return MnemonicString[(int)schema.mnemonic];
+	if (schema.mnemonic != Mnemonic::_)
+		return MnemonicString[(int)schema.mnemonic];
+	else
+		return "ERROR";
 }
 
 #endif

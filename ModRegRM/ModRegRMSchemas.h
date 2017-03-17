@@ -19,7 +19,7 @@ struct ModRegRMSchema
 	{
 		RM rm;
 		Size rmSize;
-		RM rm16;
+		RM rm16; //Used to accomodate inconsistencies between 16-bit and 32-bit addressing methods
 	};
 };
 
