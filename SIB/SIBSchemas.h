@@ -1,7 +1,7 @@
 #ifndef SIB_SCHEMAS_HEADER
 #define SIB_SCHEMAS_HEADER
 
-#include "SIBEnums.h"
+#include "SIBEnums.h" //Scale, Index, Base
 
 struct SIBSchema
 {

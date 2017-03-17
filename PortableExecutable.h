@@ -147,12 +147,12 @@ public:
 
 private:
 	EXECUTABLE_DOS_HEADER dosHeader;
-	unsigned char * DOSProgram;
+	unsigned char * DOSProgram = nullptr;
 	EXECUTABLE_FILE_HEADER fileHeader;
 	EXECUTABLE_OPTIONAL_HEADER optionalHeader;
 	
-	EXECUTABLE_SECTION_HEADER * sectionHeaders;
-	Section * sections;
+	EXECUTABLE_SECTION_HEADER * sectionHeaders = nullptr;
+	Section * sections = nullptr;
 };
 
 PortableExecutable::PortableExecutable()
@@ -166,8 +166,9 @@ PortableExecutable::PortableExecutable(string filename)
 PortableExecutable::~PortableExecutable()
 {
 	delete[] DOSProgram;
-	for (int i = 0; i < fileHeader.NumberOfSections; i++)
-		delete[] sections[i].Data;
+	if(sections)
+		for (int i = 0; i < fileHeader.NumberOfSections; i++)
+			delete[] sections[i].Data;
 	delete[] sectionHeaders;
 	delete[] sections;
 }

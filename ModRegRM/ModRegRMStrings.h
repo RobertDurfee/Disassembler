@@ -10,7 +10,9 @@
 
 #endif
 
-const char * RegString[24] =
+#ifndef GENERAL_REGISTER_STRING
+#define GENERAL_REGISTER_STRING
+const char * GeneralRegisterString[24] =
 {
 /* 8-bit Registers */ /* 16-bit Registers */ /* 32-Bit Registers */
 
@@ -23,6 +25,7 @@ const char * RegString[24] =
   /* 0x12 */ "DH",      /* 0x13 */ "SI",       /* 0x14 */ "ESI",
   /* 0x15 */ "BH",      /* 0x16 */ "DI",       /* 0x17 */ "EDI", 
 };
+#endif
 
 const char * RMString[24] =
 {
@@ -38,4 +41,21 @@ const char * RMString[24] =
   /* 0x15 */ "_",       /* 0x16 */ "BX",       /* 0x17 */ "EDI"
 };
 
-#endif 
+#ifndef SEGMENT_REGISTER_STRING
+#define SEGMENT_REGISTER_STRING
+const char * SegmentRegisterString[24] =
+{
+/* Segment Registers */
+	
+  /* 0x00 */ "ES",      /* 0x01 */ "ES",       /* 0x02 */ "ES",
+  /* 0x03 */ "CS",      /* 0x04 */ "CS",       /* 0x05 */ "CS",
+  /* 0x06 */ "SS",      /* 0x07 */ "SS",       /* 0x08 */ "SS",
+  /* 0x09 */ "DS",      /* 0x0A */ "DS",       /* 0x0B */ "DS",
+  /* 0x0C */ "FS",      /* 0x0D */ "FS",       /* 0x0E */ "FS",
+  /* 0x0F */ "GS",      /* 0x10 */ "GS",       /* 0x11 */ "GS",
+  /* 0x12 */ "??",      /* 0x13 */ "??",       /* 0x14 */ "??",
+  /* 0x15 */ "??",      /* 0x16 */ "??",       /* 0x17 */ "??"
+};
+#endif
+
+#endif

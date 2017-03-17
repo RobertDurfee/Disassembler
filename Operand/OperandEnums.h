@@ -1,5 +1,5 @@
-#ifndef INSTRUCTION_OPERAND_ENUMS_HEADER
-#define INSTRUCTION_OPERAND_ENUMS_HEADER
+#ifndef OPERAND_ENUMS_HEADER
+#define OPERAND_ENUMS_HEADER
 
 enum class AddressingMethod
 {
@@ -40,12 +40,12 @@ enum class AddressingMethod
 /* 0x0C */ LAST //Placeholder
 };
 
-enum class Register
+enum class GeneralRegister
 {
 /* 0x00 */ _,    //No Operand
 /* 0x01 */ $,    //Operand Specified in Another Table
 
-/* 0x0C */ A = (Register)AddressingMethod::LAST,       //General A Register
+/* 0x0C */ A = (GeneralRegister)AddressingMethod::LAST,       //General A Register
 /* 0x0F */ C = A + 3,     //General C Register
 /* 0x12 */ D = C + 3,     //General D Register
 /* 0x15 */ B = D + 3,     //General B Register
@@ -62,7 +62,7 @@ enum class SegmentRegister
 /* 0x00 */ _,    //No Operand
 /* 0x01 */ $,    //Operand Specified in Another Table
 
-/* 0x24 */ ES = (SegmentRegister)Register::LAST,          //E Segment Register
+/* 0x24 */ ES = (SegmentRegister)GeneralRegister::LAST,          //E Segment Register
 /* 0x27 */ CS = ES + 3,    //C Segment Register
 /* 0x2A */ SS = CS + 3,    //S Segment Register
 /* 0x2D */ DS = CS + 3,    //D Segment Register

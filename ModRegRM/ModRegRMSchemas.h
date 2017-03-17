@@ -1,7 +1,7 @@
 #ifndef MOD_REG_RM_SCHEMAS_HEADER
 #define MOD_REG_RM_SCHEMAS_HEADER
 
-#include "ModRegRMEnums.h"
+#include "ModRegRMEnums.h" //Mod, Reg, RM, Size
 
 struct ModRegRMSchema
 {
@@ -19,11 +19,11 @@ struct ModRegRMSchema
 	{
 		RM rm;
 		Size rmSize;
-		RM rm16; //Used to accomodate inconsistancies in 16-bit vs 32-bit addressing forms without making an entire new table.
+		RM rm16;
 	};
 };
 
-const ModRegRMSchema EmptyModRegRMSchema = { { Mod::_, Size::_ }, { Reg::_, Size::_ }, { RM::_, Size::_, RM::_ } };
+const ModRegRMSchema EmptyModRegRMSchema = { { Mod::_, Size::_ },{ Reg::_, Size::_ },{ RM::_, Size::_, RM::_ } };
 
 const ModRegRMSchema ModRegRMSchemas[0x100 /* 00 000 000 - 11 111 111 */] = 
 {

@@ -1,7 +1,14 @@
 #ifndef DISASSEMBLER_HEADER
 #define DISASSEMBLER_HEADER
 
+#include "DisassemblerTypes.h"       //byte
+#include "DisassemblerFunctions.h"   //Append()
+
 #include "Instruction\Instruction.h" //Instruction
+
+#include <stdlib.h>                  //free()
+#include <string.h>                  //strlen()
+#include <stdio.h>                   //fwrite()
 
 class Disassembler
 {
@@ -18,10 +25,10 @@ public:
 
 		while (index < length)
 		{
-			char * inst = NULL;
+			char * inst = nullptr;
 
 			Append(&inst, "0x%08X: ", index);
-			
+
 			Append(&inst, Instruction(opcodes, &index).GetString());
 
 			Append(&inst, "\n");

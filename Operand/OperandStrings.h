@@ -1,5 +1,5 @@
-#ifndef INSTRUCTION_OPERAND_STRINGS_HEADER
-#define INSTRUCTION_OPERAND_STRINGS_HEADER
+#ifndef OPERAND_STRINGS_HEADER
+#define OPERAND_STRINGS_HEADER
 
 #ifndef STRING_SIZE_OFFSETS
 #define STRING_SIZE_OFFSETS
@@ -10,7 +10,9 @@
 
 #endif
 
-const char * RegisterString[24] = 
+#ifndef GENERAL_REGISTER_STRING
+#define GENERAL_REGISTER_STRING
+const char * GeneralRegisterString[24] = 
 { 
 /* 8-bit Registers */ /* 16-bit Registers */ /* 32-bit Registers */
 
@@ -23,7 +25,10 @@ const char * RegisterString[24] =
   /* 0x12 */ "DH",      /* 0x13 */ "SI",       /* 0x14 */ "ESI",
   /* 0x15 */ "BH",      /* 0x16 */ "DI",       /* 0x17 */ "EDI",
 };
+#endif
 
+#ifndef SEGMENT_REGISTER_STRING
+#define SEGMENT_REGISTER_STRING
 const char * SegmentRegisterString[24] =
 {
 /* Segment Registers */
@@ -37,10 +42,12 @@ const char * SegmentRegisterString[24] =
   /* 0x12 */ "??",      /* 0x13 */ "??",       /* 0x14 */ "??",
   /* 0x15 */ "??",      /* 0x16 */ "??",       /* 0x17 */ "??"
 };
+#endif
 
 const char * ConstantString[1] = 
 {
 /* 0x00 */ "1",  //The number one (Used only by the shift instruction group)
 };
+
 
 #endif
