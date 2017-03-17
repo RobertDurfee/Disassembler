@@ -105,68 +105,68 @@ This example takes a sample executable called "Test.exe" and loads the ".text" s
 Since the executable I selected in the above example went to a jump table, I just picked a random function in "Test.exe" to show as example output.
 ### Output Comparison
 ```
-         0:   55                      push   ebp
-         1:   8b ec                   mov    ebp,esp
-         3:   6a ff                   push   0xffffffff
-         5:   68 f2 7c 43 00          push   0x437cf2
-         a:   64 a1 00 00 00 00       mov    eax,fs:0x0
-        10:   50                      push   eax
-        11:   81 ec e8 00 00 00       sub    esp,0xe8
-        17:   53                      push   ebx
-        18:   56                      push   esi
-        19:   57                      push   edi
-        1a:   51                      push   ecx
-        1b:   8d bd 0c ff ff ff       lea    edi,[ebp-0xf4]
-        21:   b9 3a 00 00 00          mov    ecx,0x3a
-        26:   b8 cc cc cc cc          mov    eax,0xcccccccc
-        2b:   f3 ab                   rep stos DWORD PTR es:[edi],eax
-        2d:   59                      pop    ecx
-        2e:   a1 30 45 44 00          mov    eax,ds:0x444530
-        33:   33 c5                   xor    eax,ebp
-        35:   50                      push   eax
-        36:   8d 45 f4                lea    eax,[ebp-0xc]
-        39:   64 a3 00 00 00 00       mov    fs:0x0,eax
-        3f:   89 4d ec                mov    DWORD PTR [ebp-0x14],ecx
-        42:   6a 18                   push   0x18
-        44:   e8 bc dd fe ff          call   0xfffede05
-        49:   83 c4 04                add    esp,0x4
-        4c:   89 85 14 ff ff ff       mov    DWORD PTR [ebp-0xec],eax
-        52:   c7 45 fc 00 00 00 00    mov    DWORD PTR [ebp-0x4],0x0
-        59:   83 bd 14 ff ff ff 00    cmp    DWORD PTR [ebp-0xec],0x0
-        60:   74 2e                   je     0x90
-        62:   6a 18                   push   0x18
-        64:   8b 8d 14 ff ff ff       mov    ecx,DWORD PTR [ebp-0xec]
-        6a:   e8 4d e0 fe ff          call   0xfffee0bc
-        6f:   8b 45 ec                mov    eax,DWORD PTR [ebp-0x14]
-        72:   8b 08                   mov    ecx,DWORD PTR [eax]
-        74:   51                      push   ecx
-        75:   8b 55 0c                mov    edx,DWORD PTR [ebp+0xc]
-        78:   52                      push   edx
-        79:   8b 45 08                mov    eax,DWORD PTR [ebp+0x8]
-        7c:   50                      push   eax
-        7d:   8b 8d 14 ff ff ff       mov    ecx,DWORD PTR [ebp-0xec]
-        83:   e8 a7 e0 fe ff          call   0xfffee12f
-        88:   89 85 0c ff ff ff       mov    DWORD PTR [ebp-0xf4],eax
-        8e:   eb 0a                   jmp    0x9a
-        90:   c7 85 0c ff ff ff 00    mov    DWORD PTR [ebp-0xf4],0x0
-        97:   00 00 00
-        9a:   8b 8d 0c ff ff ff       mov    ecx,DWORD PTR [ebp-0xf4]
-        a0:   89 8d 20 ff ff ff       mov    DWORD PTR [ebp-0xe0],ecx
-        a6:   c7 45 fc ff ff ff ff    mov    DWORD PTR [ebp-0x4],0xffffffff
-        ad:   8b 55 ec                mov    edx,DWORD PTR [ebp-0x14]
-        b0:   8b 85 20 ff ff ff       mov    eax,DWORD PTR [ebp-0xe0]
-        b6:   89 42 20                mov    DWORD PTR [edx+0x20],eax
-        b9:   8b 4d f4                mov    ecx,DWORD PTR [ebp-0xc]
-        bc:   64 89 0d 00 00 00 00    mov    DWORD PTR fs:0x0,ecx
-        c3:   59                      pop    ecx
-        c4:   5f                      pop    edi
-        c5:   5e                      pop    esi
-        c6:   5b                      pop    ebx
-        c7:   81 c4 f4 00 00 00       add    esp,0xf4
-        cd:   3b ec                   cmp    ebp,esp
-        cf:   e8 30 d9 fe ff          call   0xfffeda04
-        d4:   8b e5                   mov    esp,ebp
-        d6:   5d                      pop    ebp
-        d7:   c2 08 00                ret    0x8
+       0:   55                      push   ebp
+       1:   8b ec                   mov    ebp,esp
+       3:   6a ff                   push   0xffffffff
+       5:   68 f2 7c 43 00          push   0x437cf2
+       a:   64 a1 00 00 00 00       mov    eax,fs:0x0
+      10:   50                      push   eax
+      11:   81 ec e8 00 00 00       sub    esp,0xe8
+      17:   53                      push   ebx
+      18:   56                      push   esi
+      19:   57                      push   edi
+      1a:   51                      push   ecx
+      1b:   8d bd 0c ff ff ff       lea    edi,[ebp-0xf4]
+      21:   b9 3a 00 00 00          mov    ecx,0x3a
+      26:   b8 cc cc cc cc          mov    eax,0xcccccccc
+      2b:   f3 ab                   rep stos DWORD PTR es:[edi],eax
+      2d:   59                      pop    ecx
+      2e:   a1 30 45 44 00          mov    eax,ds:0x444530
+      33:   33 c5                   xor    eax,ebp
+      35:   50                      push   eax
+      36:   8d 45 f4                lea    eax,[ebp-0xc]
+      39:   64 a3 00 00 00 00       mov    fs:0x0,eax
+      3f:   89 4d ec                mov    DWORD PTR [ebp-0x14],ecx
+      42:   6a 18                   push   0x18
+      44:   e8 bc dd fe ff          call   0xfffede05
+      49:   83 c4 04                add    esp,0x4
+      4c:   89 85 14 ff ff ff       mov    DWORD PTR [ebp-0xec],eax
+      52:   c7 45 fc 00 00 00 00    mov    DWORD PTR [ebp-0x4],0x0
+      59:   83 bd 14 ff ff ff 00    cmp    DWORD PTR [ebp-0xec],0x0
+      60:   74 2e                   je     0x90
+      62:   6a 18                   push   0x18
+      64:   8b 8d 14 ff ff ff       mov    ecx,DWORD PTR [ebp-0xec]
+      6a:   e8 4d e0 fe ff          call   0xfffee0bc
+      6f:   8b 45 ec                mov    eax,DWORD PTR [ebp-0x14]
+      72:   8b 08                   mov    ecx,DWORD PTR [eax]
+      74:   51                      push   ecx
+      75:   8b 55 0c                mov    edx,DWORD PTR [ebp+0xc]
+      78:   52                      push   edx
+      79:   8b 45 08                mov    eax,DWORD PTR [ebp+0x8]
+      7c:   50                      push   eax
+      7d:   8b 8d 14 ff ff ff       mov    ecx,DWORD PTR [ebp-0xec]
+      83:   e8 a7 e0 fe ff          call   0xfffee12f
+      88:   89 85 0c ff ff ff       mov    DWORD PTR [ebp-0xf4],eax
+      8e:   eb 0a                   jmp    0x9a
+      90:   c7 85 0c ff ff ff 00    mov    DWORD PTR [ebp-0xf4],0x0
+      97:   00 00 00
+      9a:   8b 8d 0c ff ff ff       mov    ecx,DWORD PTR [ebp-0xf4]
+      a0:   89 8d 20 ff ff ff       mov    DWORD PTR [ebp-0xe0],ecx
+      a6:   c7 45 fc ff ff ff ff    mov    DWORD PTR [ebp-0x4],0xffffffff
+      ad:   8b 55 ec                mov    edx,DWORD PTR [ebp-0x14]
+      b0:   8b 85 20 ff ff ff       mov    eax,DWORD PTR [ebp-0xe0]
+      b6:   89 42 20                mov    DWORD PTR [edx+0x20],eax
+      b9:   8b 4d f4                mov    ecx,DWORD PTR [ebp-0xc]
+      bc:   64 89 0d 00 00 00 00    mov    DWORD PTR fs:0x0,ecx
+      c3:   59                      pop    ecx
+      c4:   5f                      pop    edi
+      c5:   5e                      pop    esi
+      c6:   5b                      pop    ebx
+      c7:   81 c4 f4 00 00 00       add    esp,0xf4
+      cd:   3b ec                   cmp    ebp,esp
+      cf:   e8 30 d9 fe ff          call   0xfffeda04
+      d4:   8b e5                   mov    esp,ebp
+      d6:   5d                      pop    ebp
+      d7:   c2 08 00                ret    0x8
 ```
 Provided is the output from `objdump` to affirm legitimacy.
