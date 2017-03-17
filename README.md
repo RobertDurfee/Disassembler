@@ -28,7 +28,7 @@ int main()
 {
 	PortableExecutable pe("Test.exe");
 
-	Disassembler disasm((char *)pe.GetSection(".text")->Data, pe.GetSection(".text")->Length);
+	Disassembler disasm(pe.GetSection(".text")->Data, pe.GetSection(".text")->Length);
 
 	disasm.Print();
 	
