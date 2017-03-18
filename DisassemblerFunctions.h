@@ -3,7 +3,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS //Necessary to use snprintf() and sprintf()
 
-#include "DisassemblerTypes.h" //byte, word, dword
+#include "DisassemblerTypes.h" //byte
 
 #include <stdlib.h>            //malloc(), free()
 #include <string.h>            //strlen(), memcpy()
@@ -103,8 +103,7 @@ inline void Append(char ** front, char * format, const char * back)
 
 	char * output = (char *)malloc(frontLength + backLength + 1);
 
-	if (*front != nullptr)
-		memcpy(output, *front, frontLength);
+	if (*front != nullptr)	memcpy(output, *front, frontLength);
 
 	sprintf(&output[frontLength], format, back);
 
