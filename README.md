@@ -5,7 +5,7 @@ C++ class for disassembling Intel x86 assembly.
 ### Disclaimer
 This is not production-worthy code! View this simply as a proof-of-concept.
 
-This project is not yet completed as two-byte and three-byte opcodes are not supported and some addressing methods are not be accurate.
+This project is not yet completed as two-byte and three-byte opcodes are not supported and prefixes are not printed.
 
 ### Initialization
 ```C++
