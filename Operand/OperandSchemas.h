@@ -3,7 +3,7 @@
 
 #include "OperandEnums.h" //AddressingMethod, GeneralRegister, SegmentRegister, Constant, Size
 
-union OperandSchema
+struct OperandSchema
 {
 	OperandSchema() : addressingMethod(AddressingMethod::_), operandSize(Size::_), generalRegister(GeneralRegister::_), segmentRegister(SegmentRegister::_), constant(Constant::_) {};
 

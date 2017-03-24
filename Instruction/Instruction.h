@@ -12,6 +12,10 @@
 #include <stdlib.h>                    //malloc(), free()
 #include <string.h>                    //memcpy()
 
+class ModRegRM;
+class Operator;
+class Operand;
+
 class Instruction
 {
 	friend class Operator; //Needs: schema.mnemonic

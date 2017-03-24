@@ -3,7 +3,7 @@
 
 #include "OperatorEnums.h" //Mnemonic, Prefix, Group
 
-union OperatorSchema
+struct OperatorSchema
 {
 	OperatorSchema() : mnemonic(Mnemonic::_), prefix(Prefix::_), group(Group::_) {};
 

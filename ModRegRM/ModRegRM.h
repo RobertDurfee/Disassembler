@@ -14,6 +14,8 @@
 #include <stdlib.h>                       //malloc(), free()
 #include <string.h>                       //memcpy()
 
+class SIB;
+
 class ModRegRM
 {
 	friend class SIB; //Needs: opcode, index, schema.mod
