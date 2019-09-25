@@ -1,10 +1,7 @@
 #ifndef OPERATOR_HEADER
 #define OPERATOR_HEADER
 
-//#include "../Instruction/Instruction.h" //Instruction (Due to circular include dependency, this must be commented out.)
-
-#include "OperatorStrings.h"              //MnemonicString
-#include "OperatorSchemas.h"              //OperatorSchema, EmptyOperatorSchema
+#include "../Instruction/Instruction.h"
 
 class Operator
 {
@@ -21,18 +18,5 @@ private:
 	//Schema
 	OperatorSchema schema = EmptyOperatorSchema;
 };
-
-Operator::Operator(Instruction * instruction) : instruction(instruction)
-{
-	schema = instruction->schema.operatorSchema;
-}
-
-const char * Operator::GetString()
-{
-	if (schema.mnemonic != Mnemonic::_)
-		return MnemonicString[(int)schema.mnemonic];
-	else
-		return "ERROR";
-}
 
 #endif

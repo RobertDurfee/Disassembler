@@ -1,7 +1,7 @@
 #ifndef OPERATOR_SCHEMAS_HEADER
 #define OPERATOR_SCHEMAS_HEADER
 
-#include "OperatorEnums.h" //Mnemonic, Prefix, Group
+#include "./OperatorEnums.h"
 
 struct OperatorSchema
 {
@@ -16,6 +16,6 @@ struct OperatorSchema
 	Group group;
 };
 
-const OperatorSchema EmptyOperatorSchema = { Mnemonic::_ };
+extern const OperatorSchema EmptyOperatorSchema;
 
 #endif

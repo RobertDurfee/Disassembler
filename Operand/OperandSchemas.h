@@ -1,7 +1,7 @@
 #ifndef OPERAND_SCHEMAS_HEADER
 #define OPERAND_SCHEMAS_HEADER
 
-#include "OperandEnums.h" //AddressingMethod, GeneralRegister, SegmentRegister, Constant, Size
+#include "./OperandEnums.h"
 
 struct OperandSchema
 {
@@ -22,6 +22,6 @@ struct OperandSchema
 	Constant constant;
 };
 
-const OperandSchema EmptyOperandSchema = { AddressingMethod::_, Size::_ };
+extern const OperandSchema EmptyOperandSchema;
 
 #endif

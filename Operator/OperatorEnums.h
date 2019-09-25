@@ -246,7 +246,7 @@ enum class Group
 { 
 /* 0x00000 */ _,             //No Operator
 
-/* 0x0009A */ Immediate = (Group)Mnemonic::LAST,  //Arithmetic Operations
+/* 0x0009A */ Immediate = (int)Mnemonic::LAST,  //Arithmetic Operations
 /* 0x0009B */ Shift,         //Shift/Rotate Operations
 /* 0x0009C */ Unary,         //Multiplication, Division, Test, Negate Operations
 /* 0x0009D */ Four,          //Increment, Decrement

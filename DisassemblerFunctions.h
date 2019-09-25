@@ -1,13 +1,10 @@
 #ifndef DISASSEMBLER_FUNCTIONS_HEADER
 #define DISASSEMBLER_FUNCTIONS_HEADER
 
-#define _CRT_SECURE_NO_WARNINGS //Necessary to use snprintf() and sprintf()
-
-#include "DisassemblerTypes.h" //byte
-
-#include <stdlib.h>            //malloc(), free()
-#include <string.h>            //strlen(), memcpy()
-#include <stdio.h>             //sprintf(), snprintf()
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include "./DisassemblerTypes.h"
 
 template<typename T>
 //Returns a value of type byte, word, or dword from a byte array at 'index' advancing 'index' depending on the size of the value read.
